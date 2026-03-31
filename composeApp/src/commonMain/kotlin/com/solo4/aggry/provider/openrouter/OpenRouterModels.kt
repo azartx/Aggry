@@ -1,6 +1,5 @@
 package com.solo4.aggry.provider.openrouter
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +10,15 @@ data class OpenRouterModelsResponse(
 @Serializable
 data class OpenRouterModel(
     val id: String,
-    val name: String
+    val name: String,
+    val architecture: OpenRouterArchitecture? = null,
+    val context_length: Long? = null
+)
+
+@Serializable
+data class OpenRouterArchitecture(
+    val input_modalities: List<String> = emptyList(),
+    val output_modalities: List<String> = emptyList()
 )
 
 @Serializable

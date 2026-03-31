@@ -26,7 +26,15 @@ class OpenRouterProvider(
             val response: OpenRouterModelsResponse = client.get("https://openrouter.ai/api/v1/models") {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
             }.body()
-            response.data.map { AIModel(id = it.id, name = it.name) }
+            response.data.map {
+                AIModel(
+                    id = it.id,
+                    name = it.name,
+                    inputModalities = it.architecture?.input_modalities ?: emptyList(),
+                    outputModalities = it.architecture?.output_modalities ?: emptyList(),
+                    contextLength = it.context_length
+                )
+            }
         }
     }
 
