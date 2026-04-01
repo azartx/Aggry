@@ -15,5 +15,28 @@ data class AIModel(
 data class ChatMessage(
     val id: String,
     val content: String,
-    val isFromUser: Boolean
+    val isFromUser: Boolean,
+    val attachedFiles: List<AttachedFile> = emptyList()
 )
+
+data class AttachedFile(
+    val name: String,
+    val bytes: ByteArray,
+    val mimeType: String
+) {
+    val isImage: Boolean get() = mimeType.startsWith("image/")
+    val isPdf: Boolean get() = mimeType == "application/pdf"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AttachedFile) return false
+        return name == other.name && bytes.contentEquals(other.bytes) && mimeType == other.mimeType
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + bytes.contentHashCode()
+        result = 31 * result + mimeType.hashCode()
+        return result
+    }
+}

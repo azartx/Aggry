@@ -1,6 +1,7 @@
 package com.solo4.aggry.provider.openrouter
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class OpenRouterModelsResponse(
@@ -30,7 +31,7 @@ data class OpenRouterChatRequest(
 @Serializable
 data class OpenRouterMessage(
     val role: String,
-    val content: String
+    val content: JsonElement
 )
 
 @Serializable
@@ -40,5 +41,11 @@ data class OpenRouterChatResponse(
 
 @Serializable
 data class OpenRouterChoice(
-    val message: OpenRouterMessage
+    val message: OpenRouterChoiceMessage
+)
+
+@Serializable
+data class OpenRouterChoiceMessage(
+    val role: String,
+    val content: String? = null
 )

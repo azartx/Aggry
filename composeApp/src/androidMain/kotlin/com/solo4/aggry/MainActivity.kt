@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.solo4.aggry.data.initSettingsFactory
+import com.solo4.aggry.db.AggryDatabaseProvider
+import com.solo4.aggry.db.DatabaseDriverFactory
+import com.solo4.aggry.db.FileCache
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,6 +17,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         initSettingsFactory(applicationContext)
+        AggryDatabaseProvider.init(
+            driverFactory = DatabaseDriverFactory(applicationContext),
+            cache = FileCache(applicationContext)
+        )
 
         setContent {
             App()

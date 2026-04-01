@@ -13,7 +13,8 @@ import com.solo4.aggry.provider.openrouter.OpenRouterProvider
 
 private sealed interface Screen {
     data object KeyList : Screen
-    data class Chat(val apiKey: ApiKey) : Screen
+    data class ConversationList(val apiKey: ApiKey) : Screen
+    data class Chat(val apiKey: ApiKey, val conversationId: String? = null) : Screen
 }
 
 @Composable
@@ -29,15 +30,40 @@ fun App() {
 
             when (val screen = currentScreen) {
                 is Screen.KeyList -> {
-                    ApiKeyScreen(onKeyClick = { currentScreen = Screen.Chat(it) })
+                    ApiKeyScreen(
+                        onKeyClick = { apiKey ->
+                            currentScreen = Screen.ConversationList(apiKey)
+                        }
+                    )
+                }
+                is Screen.ConversationList -> {
+                    ConversationListScreen(
+                        apiKey = screen.apiKey,
+                        onConversationClick = { conversation ->
+                            currentScreen = Screen.Chat(
+                                apiKey = screen.apiKey,
+                                conversationId = conversation.id
+                            )
+                        },
+                        onNewChat = {
+                            currentScreen = Screen.Chat(apiKey = screen.apiKey)
+                        },
+                        onBack = { currentScreen = Screen.KeyList }
+                    )
                 }
                 is Screen.Chat -> {
-                    val viewModel = remember(screen.apiKey.id) {
-                        ChatViewModel(OpenRouterProvider(screen.apiKey.key))
+                    val viewModel = remember(screen.apiKey.id, screen.conversationId) {
+                        ChatViewModel(
+                            provider = OpenRouterProvider(screen.apiKey.key),
+                            apiKeyId = screen.apiKey.id,
+                            conversationId = screen.conversationId
+                        )
                     }
                     ChatScreen(
                         viewModel = viewModel,
-                        onBack = { currentScreen = Screen.KeyList }
+                        onBack = {
+                            currentScreen = Screen.ConversationList(screen.apiKey)
+                        }
                     )
                 }
             }

@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -31,7 +32,12 @@ kotlin {
     jvm()
     
     js {
-        browser()
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        useEsModules()
         binaries.executable()
     }
     
@@ -42,10 +48,16 @@ kotlin {
     }
     
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
+
+
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.sqldelight.driver.android)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -63,23 +75,36 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.json)
+            implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.sqldelight.driver.native)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.ktor.client.cio)
+            implementation(libs.sqldelight.driver.sqlite)
         }
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
+
+            implementation("app.cash.sqldelight:sqljs-driver:${libs.versions.sqldelight.get()}")
+            implementation(npm("sql.js", "1.12.0"))
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
+
+            implementation("app.cash.sqldelight:sqljs-driver:${libs.versions.sqldelight.get()}")
+            implementation(npm("sql.js", "1.12.0"))
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
         }
     }
 }
@@ -123,6 +148,15 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.solo4.aggry"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("AggryDatabase") {
+            packageName.set("com.solo4.aggry.db")
+            srcDirs("src/commonMain/sqldelight")
         }
     }
 }
