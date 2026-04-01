@@ -39,6 +39,33 @@ class ChatRepository {
         }
     }
 
+    suspend fun getConversation(conversationId: String): Conversation? = withContext(Dispatchers.Default) {
+        queries.selectConversationById(conversationId).executeAsOneOrNull()?.let { row ->
+            ConversationMapper.fromDb(
+                id = row.id,
+                apiKeyId = row.api_key_id,
+                modelId = row.model_id,
+                modelName = row.model_name,
+                title = row.title,
+                createdAt = row.created_at,
+                updatedAt = row.updated_at
+            )
+        }
+    }
+
+    suspend fun updateConversationModel(
+        conversationId: String,
+        modelId: String,
+        modelName: String
+    ) = withContext(Dispatchers.Default) {
+        queries.updateConversationModel(
+            id = conversationId,
+            modelId = modelId,
+            modelName = modelName,
+            updatedAt = currentTimeMillis()
+        )
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     suspend fun createConversation(
         apiKeyId: String,

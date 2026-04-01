@@ -20,21 +20,35 @@ class ChatViewModel(
 ) : ViewModel() {
 
     private var currentConversationId: String? = conversationId
+    private var savedModelId: String? = null
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
     init {
-        loadModels()
         if (conversationId != null) {
-            loadHistory(conversationId)
+            loadConversationData(conversationId)
         }
+        loadModels()
     }
 
-    private fun loadHistory(convId: String) {
+    private fun loadConversationData(convId: String) {
         viewModelScope.launch {
             val messages = repository.getMessages(convId)
             _uiState.update { it.copy(messages = messages) }
+            val conversation = repository.getConversation(convId)
+            savedModelId = conversation?.modelId
+            trySelectSavedModel()
+        }
+    }
+
+    private fun trySelectSavedModel() {
+        val modelId = savedModelId ?: return
+        val models = _uiState.value.availableModels
+        if (models.isEmpty()) return
+        val model = models.find { it.id == modelId }
+        if (model != null && _uiState.value.selectedModel == null) {
+            _uiState.update { it.copy(selectedModel = model) }
         }
     }
 
@@ -44,6 +58,7 @@ class ChatViewModel(
             provider.getModels()
                 .onSuccess { models ->
                     _uiState.update { it.copy(availableModels = models, isLoadingModels = false) }
+                    trySelectSavedModel()
                 }
                 .onFailure { error ->
                     _uiState.update { it.copy(error = error.message ?: "Failed to load models", isLoadingModels = false) }
@@ -61,6 +76,12 @@ class ChatViewModel(
 
     fun selectModel(model: AIModel) {
         _uiState.update { it.copy(selectedModel = model, showModelPicker = false) }
+        savedModelId = model.id
+        currentConversationId?.let { convId ->
+            viewModelScope.launch {
+                repository.updateConversationModel(convId, model.id, model.name)
+            }
+        }
     }
 
     fun attachFiles(files: List<AttachedFile>) {

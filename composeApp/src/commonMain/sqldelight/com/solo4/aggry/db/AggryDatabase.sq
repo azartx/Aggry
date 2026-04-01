@@ -51,6 +51,9 @@ UPDATE conversations SET title = :title, updated_at = :updatedAt WHERE id = :id;
 updateConversationTimestamp:
 UPDATE conversations SET updated_at = :updatedAt WHERE id = :id;
 
+updateConversationModel:
+UPDATE conversations SET model_id = :modelId, model_name = :modelName, updated_at = :updatedAt WHERE id = :id;
+
 deleteConversation:
 DELETE FROM conversations WHERE id = :id;
 
