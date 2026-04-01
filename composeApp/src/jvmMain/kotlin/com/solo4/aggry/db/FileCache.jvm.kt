@@ -15,12 +15,24 @@ actual class FileCache {
         return cached.absolutePath
     }
 
+    actual fun saveBytes(bytes: ByteArray, nameHint: String): String {
+        val safeName = nameHint.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+        val cached = File(cacheDir, "${bytes.hashCode()}_$safeName")
+        cached.writeBytes(bytes)
+        return cached.absolutePath
+    }
+
     actual fun loadFile(cachedPath: String): AttachedFile? {
         val file = File(cachedPath)
         if (!file.exists()) return null
         val name = file.name.substringAfter("_")
         val mimeType = guessMimeType(name)
         return AttachedFile(name = name, bytes = file.readBytes(), mimeType = mimeType)
+    }
+
+    actual fun loadBytes(cachedPath: String): ByteArray? {
+        val file = File(cachedPath)
+        return if (file.exists()) file.readBytes() else null
     }
 
     actual fun deleteFile(cachedPath: String) {

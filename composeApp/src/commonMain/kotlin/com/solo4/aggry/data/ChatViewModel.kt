@@ -2,6 +2,7 @@ package com.solo4.aggry.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.solo4.aggry.db.AggryDatabaseProvider
 import com.solo4.aggry.db.ChatRepository
 import com.solo4.aggry.provider.AIChatProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -143,11 +144,20 @@ class ChatViewModel(
             }
 
             provider.sendMessage(_uiState.value.messages, selectedModel.id)
-                .onSuccess { response ->
+                .onSuccess { chatResponse ->
+                    val generatedImages = chatResponse.images.mapNotNull { bytes ->
+                        try {
+                            val path = AggryDatabaseProvider.fileCache.saveBytes(bytes, "generated_image.png")
+                            GeneratedImage(cachedPath = path, mimeType = "image/png")
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
                     val aiMessage = ChatMessage(
                         id = Uuid.random().toString(),
-                        content = response,
-                        isFromUser = false
+                        content = chatResponse.text,
+                        isFromUser = false,
+                        generatedImages = generatedImages
                     )
                     _uiState.update {
                         it.copy(messages = it.messages + aiMessage, isSending = false)

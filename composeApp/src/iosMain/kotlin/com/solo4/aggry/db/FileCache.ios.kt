@@ -42,11 +42,24 @@ actual class FileCache {
         return path
     }
 
+    actual fun saveBytes(bytes: ByteArray, nameHint: String): String {
+        val safeName = nameHint.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+        val path = "$cacheDir/${bytes.hashCode()}_$safeName"
+        val nsData = bytes.toNSData()
+        nsData.writeToFile(path, atomically = true)
+        return path
+    }
+
     actual fun loadFile(cachedPath: String): AttachedFile? {
         val data = NSData.dataWithContentsOfFile(cachedPath) ?: return null
         val name = cachedPath.substringAfterLast("_")
         val mimeType = guessMimeType(name)
         return AttachedFile(name = name, bytes = data.toByteArray(), mimeType = mimeType)
+    }
+
+    actual fun loadBytes(cachedPath: String): ByteArray? {
+        val data = NSData.dataWithContentsOfFile(cachedPath) ?: return null
+        return data.toByteArray()
     }
 
     @OptIn(ExperimentalForeignApi::class)

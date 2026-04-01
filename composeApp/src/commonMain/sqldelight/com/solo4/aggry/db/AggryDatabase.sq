@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS attached_files (
     cached_path TEXT NOT NULL,
     mime_type TEXT NOT NULL,
     size INTEGER NOT NULL,
+    is_generated INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
 );
 
@@ -70,11 +71,18 @@ DELETE FROM messages WHERE conversation_id = :conversationId;
 
 -- Attached files queries
 selectFilesByMessage:
-SELECT * FROM attached_files WHERE message_id = :messageId;
+SELECT * FROM attached_files WHERE message_id = :messageId AND is_generated = 0;
+
+selectGeneratedImagesByMessage:
+SELECT * FROM attached_files WHERE message_id = :messageId AND is_generated = 1;
 
 insertFile:
-INSERT INTO attached_files (message_id, name, cached_path, mime_type, size)
-VALUES (:messageId, :name, :cachedPath, :mimeType, :size);
+INSERT INTO attached_files (message_id, name, cached_path, mime_type, size, is_generated)
+VALUES (:messageId, :name, :cachedPath, :mimeType, :size, 0);
+
+insertGeneratedImage:
+INSERT INTO attached_files (message_id, name, cached_path, mime_type, size, is_generated)
+VALUES (:messageId, :name, :cachedPath, :mimeType, :size, 1);
 
 deleteFilesByMessage:
 DELETE FROM attached_files WHERE message_id = :messageId;

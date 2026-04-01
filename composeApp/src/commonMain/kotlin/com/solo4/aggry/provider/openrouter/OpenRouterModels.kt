@@ -25,7 +25,8 @@ data class OpenRouterArchitecture(
 @Serializable
 data class OpenRouterChatRequest(
     val model: String,
-    val messages: List<OpenRouterMessage>
+    val messages: List<OpenRouterMessage>,
+    val modalities: List<String>? = null
 )
 
 @Serializable
@@ -47,5 +48,17 @@ data class OpenRouterChoice(
 @Serializable
 data class OpenRouterChoiceMessage(
     val role: String,
-    val content: String? = null
+    val content: String? = null,
+    val images: List<OpenRouterImage>? = null
+)
+
+@Serializable
+data class OpenRouterImage(
+    val type: String? = null,
+    val image_url: OpenRouterImageUrl? = null
+)
+
+@Serializable
+data class OpenRouterImageUrl(
+    val url: String? = null
 )

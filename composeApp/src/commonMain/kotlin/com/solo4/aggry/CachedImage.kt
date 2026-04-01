@@ -1,0 +1,13 @@
+package com.solo4.aggry
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+
+@Composable
+expect fun CachedImage(
+    path: String,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit
+)

@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +54,9 @@ fun ChatScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(uiState.selectedModel?.name ?: "Select Model")
+                    if (uiState.selectedModel?.name.isNullOrBlank()) {
+                        Text("Select Model")
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -74,6 +77,7 @@ fun ChatScreen(
                             } else {
                                 Text(
                                     text = uiState.selectedModel?.name ?: "Model",
+                                    overflow = TextOverflow.Ellipsis,
                                     style = MaterialTheme.typography.labelLarge
                                 )
                             }
@@ -319,6 +323,20 @@ private fun MessageBubble(message: ChatMessage) {
                     color = if (isUser) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+            if (message.generatedImages.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                message.generatedImages.forEach { image ->
+                    CachedImage(
+                        path = image.cachedPath,
+                        contentDescription = "Generated image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.FillWidth
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
     }

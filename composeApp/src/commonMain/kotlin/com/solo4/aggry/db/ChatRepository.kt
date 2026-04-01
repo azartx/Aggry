@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.Conversation
+import com.solo4.aggry.data.GeneratedImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,13 +29,17 @@ class ChatRepository {
             val files = queries.selectFilesByMessage(row.id).executeAsList().mapNotNull { fileRow ->
                 fileCache.loadFile(fileRow.cached_path)
             }
+            val images = queries.selectGeneratedImagesByMessage(row.id).executeAsList().map { imgRow ->
+                GeneratedImage(cachedPath = imgRow.cached_path, mimeType = imgRow.mime_type)
+            }
             MessageMapper.fromDb(
                 id = row.id,
                 conversationId = row.conversation_id,
                 content = row.content,
                 isFromUser = row.is_from_user == 1L,
                 createdAt = row.created_at,
-                files = files
+                files = files,
+                images = images
             )
         }
     }
@@ -108,6 +113,16 @@ class ChatRepository {
                 size = file.bytes.size.toLong()
             )
         }
+        message.generatedImages.forEach { image ->
+            val bytes = fileCache.loadBytes(image.cachedPath) ?: return@forEach
+            queries.insertGeneratedImage(
+                messageId = message.id,
+                name = "generated_${System.nanoTime()}",
+                cachedPath = image.cachedPath,
+                mimeType = image.mimeType,
+                size = bytes.size.toLong()
+            )
+        }
         queries.updateConversationTimestamp(id = conversationId, updatedAt = now)
         updateTitleIfNeeded(conversationId, message)
     }
@@ -130,6 +145,9 @@ class ChatRepository {
         messages.forEach { msg ->
             queries.selectFilesByMessage(msg.id).executeAsList().forEach { fileRow ->
                 fileCache.deleteFile(fileRow.cached_path)
+            }
+            queries.selectGeneratedImagesByMessage(msg.id).executeAsList().forEach { imgRow ->
+                fileCache.deleteFile(imgRow.cached_path)
             }
         }
         queries.deleteConversation(conversationId)

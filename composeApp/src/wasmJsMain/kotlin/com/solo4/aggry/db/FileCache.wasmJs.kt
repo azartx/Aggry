@@ -7,7 +7,15 @@ actual class FileCache {
         error("FileCache is not supported on WasmJS target")
     }
 
+    actual fun saveBytes(bytes: ByteArray, nameHint: String): String {
+        error("FileCache is not supported on WasmJS target")
+    }
+
     actual fun loadFile(cachedPath: String): AttachedFile? {
+        return null
+    }
+
+    actual fun loadBytes(cachedPath: String): ByteArray? {
         return null
     }
 

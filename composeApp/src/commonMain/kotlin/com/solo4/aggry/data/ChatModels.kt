@@ -16,7 +16,13 @@ data class ChatMessage(
     val id: String,
     val content: String,
     val isFromUser: Boolean,
-    val attachedFiles: List<AttachedFile> = emptyList()
+    val attachedFiles: List<AttachedFile> = emptyList(),
+    val generatedImages: List<GeneratedImage> = emptyList()
+)
+
+data class GeneratedImage(
+    val cachedPath: String,
+    val mimeType: String = "image/png"
 )
 
 data class AttachedFile(

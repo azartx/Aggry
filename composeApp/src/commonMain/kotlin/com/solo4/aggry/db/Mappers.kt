@@ -3,6 +3,7 @@ package com.solo4.aggry.db
 import com.solo4.aggry.data.AttachedFile
 import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.Conversation
+import com.solo4.aggry.data.GeneratedImage
 
 object ConversationMapper {
 
@@ -40,13 +41,15 @@ object MessageMapper {
         content: String,
         isFromUser: Boolean,
         createdAt: Long,
-        files: List<AttachedFile>
+        files: List<AttachedFile>,
+        images: List<GeneratedImage> = emptyList()
     ): ChatMessage {
         return ChatMessage(
             id = id,
             content = content,
             isFromUser = isFromUser,
-            attachedFiles = files
+            attachedFiles = files,
+            generatedImages = images
         )
     }
 }
