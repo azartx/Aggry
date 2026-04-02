@@ -1,12 +1,14 @@
 package com.solo4.aggry
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -50,6 +52,16 @@ fun ChatScreen(
         }
     }
 
+    if (uiState.showModelPicker) {
+        ModelPickerSheet(
+            models = uiState.availableModels,
+            currentModel = uiState.selectedModel,
+            isLoading = uiState.isLoadingModels,
+            onSelect = { viewModel.selectModel(it) },
+            onDismiss = { viewModel.toggleModelPicker() }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,40 +76,21 @@ fun ChatScreen(
                     }
                 },
                 actions = {
-                    Box {
-                        TextButton(
-                            onClick = { viewModel.toggleModelPicker() },
-                            enabled = !uiState.isLoadingModels
-                        ) {
-                            if (uiState.isLoadingModels) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text(
-                                    text = uiState.selectedModel?.name ?: "Model",
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        }
-
-                        DropdownMenu(
-                            expanded = uiState.showModelPicker,
-                            onDismissRequest = { viewModel.toggleModelPicker() }
-                        ) {
-                            uiState.availableModels.forEach { model ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(model.name)
-                                            ModelCapabilities(model)
-                                        }
-                                    },
-                                    onClick = { viewModel.selectModel(model) }
-                                )
-                            }
+                    TextButton(
+                        onClick = { viewModel.toggleModelPicker() },
+                        enabled = !uiState.isLoadingModels
+                    ) {
+                        if (uiState.isLoadingModels) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = uiState.selectedModel?.name ?: "Model",
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.labelLarge
+                            )
                         }
                     }
                 }
@@ -200,6 +193,206 @@ fun ChatScreen(
                     Text("Send")
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ModelPickerSheet(
+    models: List<AIModel>,
+    currentModel: AIModel?,
+    isLoading: Boolean,
+    onSelect: (AIModel) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    val selectedTags = remember { mutableStateListOf<String>() }
+
+    val allTags = remember(models) {
+        models.flatMap { model ->
+            model.inputModalities.map { "in:$it" } + model.outputModalities.map { "out:$it" }
+        }.distinct().sorted()
+    }
+
+    val filteredModels = remember(models, searchQuery, selectedTags.toList()) {
+        models.filter { model ->
+            val matchesSearch = searchQuery.isBlank() ||
+                model.name.contains(searchQuery, ignoreCase = true) ||
+                model.id.contains(searchQuery, ignoreCase = true)
+
+            val modelTags = model.inputModalities.map { "in:$it" } +
+                model.outputModalities.map { "out:$it" }
+
+            val matchesTags = selectedTags.isEmpty() ||
+                selectedTags.all { it in modelTags }
+
+            matchesSearch && matchesTags
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                text = "Select Model",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                placeholder = { Text("Search models...") },
+                singleLine = true,
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Text("X")
+                        }
+                    }
+                }
+            )
+
+            if (allTags.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    allTags.forEach { tag ->
+                        val isSelected = tag in selectedTags
+                        val isInput = tag.startsWith("in:")
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = {
+                                if (isSelected) selectedTags.remove(tag)
+                                else selectedTags.add(tag)
+                            },
+                            label = { Text(tag, style = MaterialTheme.typography.labelSmall) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = if (isInput)
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                                else
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = if (isInput)
+                                    MaterialTheme.colorScheme.onTertiaryContainer
+                                else
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (filteredModels.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No models found",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                Text(
+                    text = "${filteredModels.size} models",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                ) {
+                    items(filteredModels, key = { it.id }) { model ->
+                        val isSelected = model.id == currentModel?.id
+                        ModelListItem(
+                            model = model,
+                            isSelected = isSelected,
+                            onClick = {
+                                onSelect(model)
+                                onDismiss()
+                            }
+                        )
+                        HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModelListItem(
+    model: AIModel,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+        else MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = model.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                model.contextLength?.let { length ->
+                    Text(
+                        text = formatContextLength(length),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            ModelCapabilities(model)
         }
     }
 }

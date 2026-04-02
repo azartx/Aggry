@@ -13,6 +13,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.*
 
+private const val ALL_MODELS_ENDPOINT = "https://openrouter.ai/api/v1/models?output_modalities=all"
+
 class OpenRouterProvider(
     private val apiKey: String
 ) : AIChatProvider {
@@ -28,7 +30,7 @@ class OpenRouterProvider(
 
     override suspend fun getModels(): Result<List<AIModel>> {
         return runCatching {
-            val response: OpenRouterModelsResponse = client.get("https://openrouter.ai/api/v1/models") {
+            val response: OpenRouterModelsResponse = client.get(ALL_MODELS_ENDPOINT) {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
             }.body()
             response.data.map {
