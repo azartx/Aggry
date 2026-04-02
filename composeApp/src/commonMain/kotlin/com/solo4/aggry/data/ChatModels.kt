@@ -5,7 +5,9 @@ data class AIModel(
     val name: String,
     val inputModalities: List<String> = emptyList(),
     val outputModalities: List<String> = emptyList(),
-    val contextLength: Long? = null
+    val contextLength: Long? = null,
+    val inputPrice: Double? = null,
+    val outputPrice: Double? = null
 ) {
     val canGenerateImages: Boolean get() = "image" in outputModalities
     val canProcessImages: Boolean get() = "image" in inputModalities

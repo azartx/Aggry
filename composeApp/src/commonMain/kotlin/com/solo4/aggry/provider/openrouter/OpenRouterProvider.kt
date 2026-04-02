@@ -39,7 +39,9 @@ class OpenRouterProvider(
                     name = it.name,
                     inputModalities = it.architecture?.input_modalities ?: emptyList(),
                     outputModalities = it.architecture?.output_modalities ?: emptyList(),
-                    contextLength = it.context_length
+                    contextLength = it.context_length,
+                    inputPrice = it.pricing?.prompt?.toDoubleOrNull(),
+                    outputPrice = it.pricing?.completion?.toDoubleOrNull()
                 )
             }
         }

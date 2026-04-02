@@ -13,13 +13,20 @@ data class OpenRouterModel(
     val id: String,
     val name: String,
     val architecture: OpenRouterArchitecture? = null,
-    val context_length: Long? = null
+    val context_length: Long? = null,
+    val pricing: OpenRouterPricing? = null
 )
 
 @Serializable
 data class OpenRouterArchitecture(
     val input_modalities: List<String> = emptyList(),
     val output_modalities: List<String> = emptyList()
+)
+
+@Serializable
+data class OpenRouterPricing(
+    val prompt: String? = null,
+    val completion: String? = null
 )
 
 @Serializable

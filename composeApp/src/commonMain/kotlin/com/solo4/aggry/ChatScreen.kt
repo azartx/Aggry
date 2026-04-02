@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.data.formatFileSize
 import com.solo4.aggry.filepicker.rememberFilePicker
+import com.solo4.aggry.img.arrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,8 +73,12 @@ fun ChatScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Text("<-")
+                    IconButton(onClick = onBack) { // fixme: image is not visible on screen
+                        Icon(
+                            imageVector = arrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
                     }
                 },
                 actions = {
@@ -209,6 +215,7 @@ private fun ModelPickerSheet(
     var searchQuery by remember { mutableStateOf("") }
     val selectedTags = remember { mutableStateListOf<String>() }
 
+    // move from here and add filter like "Free"
     val allTags = remember(models) {
         models.flatMap { model ->
             model.inputModalities.map { "in:$it" } + model.outputModalities.map { "out:$it" }
@@ -393,6 +400,8 @@ private fun ModelListItem(
             }
             Spacer(modifier = Modifier.height(4.dp))
             ModelCapabilities(model)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = formatPricing(model.inputPrice, model.outputPrice))
         }
     }
 }
@@ -607,6 +616,8 @@ private fun SelectedModelInfo(model: AIModel) {
 
             Spacer(modifier = Modifier.height(4.dp))
             ModelCapabilities(model)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = formatPricing(model.inputPrice, model.outputPrice))
         }
     }
 }
@@ -616,5 +627,26 @@ private fun formatContextLength(tokens: Long): String {
         tokens >= 1_000_000 -> "${tokens / 1_000_000}M ctx"
         tokens >= 1_000 -> "${tokens / 1_000}K ctx"
         else -> "$tokens tokens"
+    }
+}
+
+private fun formatPricing(inputPrice: Double?, outputPrice: Double?): String {
+    val inputStr = inputPrice?.let { formatPricePerMillion(it) }
+    val outputStr = outputPrice?.let { formatPricePerMillion(it) }
+    return when {
+        inputStr != null && outputStr != null -> "In: $inputStr | Out: $outputStr"
+        inputStr != null -> "In: $inputStr"
+        outputStr != null -> "Out: $outputStr"
+        else -> ""
+    }
+}
+
+private fun formatPricePerMillion(pricePerToken: Double): String {
+    val perMillion = pricePerToken * 1_000_000
+    return when {
+        perMillion == 0.0 -> "Free"
+        perMillion < 0.01 -> "$" + (perMillion * 1000).toInt() / 1000.0
+        perMillion < 1.0 -> "$" + (perMillion * 100).toInt() / 100.0
+        else -> "$" + (perMillion * 10).toInt() / 10.0
     }
 }
