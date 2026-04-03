@@ -22,15 +22,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.solo4.aggry.data.AIModel
 import com.solo4.aggry.data.AttachedFile
 import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.data.formatFileSize
 import com.solo4.aggry.data.MessageStatus
+import com.solo4.aggry.save.savePhotoToGallery
 import com.solo4.aggry.copy.copyToClipboard
 import com.solo4.aggry.filepicker.rememberFilePicker
 import com.solo4.aggry.img.arrowBack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +44,7 @@ fun ChatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     val filePicker = rememberFilePicker { files ->
         viewModel.attachFiles(files)
@@ -142,7 +147,7 @@ fun ChatScreen(
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     items(uiState.messages, key = { it.id }) { message ->
-                        MessageBubble(message = message, onRetry = { viewModel.retryFailedMessage(it) })
+                        MessageBubble(message = message, scope, onRetry = { viewModel.retryFailedMessage(it) })
                     }
 
                     if (uiState.isSending) {
@@ -468,7 +473,7 @@ private fun AttachedFilesRow(
 }
 
 @Composable
-private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) {
+private fun MessageBubble(message: ChatMessage, scope: CoroutineScope, onRetry: (ChatMessage) -> Unit) {
     val isUser = message.isFromUser
     var menuExpanded by remember(message.id) { mutableStateOf(false) }
     Box(
@@ -573,15 +578,9 @@ private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) 
                             image = image,
                             onDismiss = { viewerOpen = false },
                             onDownload = {
-                                // todo: show success or error result
-                                /*CoroutineScope(Dispatchers.Default).launch {
-                                    val result = savePhotoToGallery(image.cachedPath)
-                                    withContext(Dispatchers.Main) {
-                                        result.onSuccess {
-                                        }.onFailure { t ->
-                                        }
-                                    }
-                                }*/
+                                scope.launch {
+                                    savePhotoToGallery(image.cachedPath, image.mimeType)
+                                }
                             }
                         )
                     }

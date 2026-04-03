@@ -10,15 +10,17 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
-actual suspend fun savePhotoToGallery(path: String): Result<Unit> {
+actual suspend fun savePhotoToGallery(path: String, mimeType: String): Result<Unit> {
     return runCatching {
+        log(LogLevel.INFO, "PhotoSaver", "savePhotoToGallery called: path=$path, mimeType=$mimeType")
+        
         val context = com.solo4.aggry.AndroidContextHolder.context
             ?: error("AndroidContextHolder.context is null. Call init in MainActivity")
 
         val file = File(path)
         if (!file.exists()) error("File does not exist: $path")
 
-        val mimeType = guessMimeType(file.name)
+        val finalMimeType = mimeType
         val displayName = file.name.substringAfterLast('/', file.name)
         val datePrefix = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val finalName = "${datePrefix}_$displayName"
@@ -27,7 +29,7 @@ actual suspend fun savePhotoToGallery(path: String): Result<Unit> {
 
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, finalName)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            put(MediaStore.MediaColumns.MIME_TYPE, finalMimeType)
             put(MediaStore.MediaColumns.RELATIVE_PATH, relativeDir)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
@@ -52,16 +54,7 @@ actual suspend fun savePhotoToGallery(path: String): Result<Unit> {
         }
 
         log(LogLevel.INFO, "PhotoSaver", "Saved to gallery: uri=$itemUri")
-    }
-}
-
-private fun guessMimeType(name: String): String {
-    val ext = name.substringAfterLast('.', "").lowercase()
-    return when (ext) {
-        "png" -> "image/png"
-        "jpg", "jpeg" -> "image/jpeg"
-        "webp" -> "image/webp"
-        "gif" -> "image/gif"
-        else -> "image/png"
+    }.onFailure { e ->
+        log(LogLevel.ERROR, "PhotoSaver", "Failed to save photo: ${e.message}", e)
     }
 }
