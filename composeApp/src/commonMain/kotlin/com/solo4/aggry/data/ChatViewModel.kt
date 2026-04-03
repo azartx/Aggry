@@ -167,6 +167,11 @@ class ChatViewModel(
                     }
                 }
                 .onFailure { error ->
+                    com.solo4.aggry.log.log(
+                        com.solo4.aggry.log.LogLevel.ERROR,
+                        "ChatViewModel",
+                        "sendMessage failed: ${error::class.simpleName}: ${error.message}"
+                    )
                     _uiState.update {
                         it.copy(error = error.message ?: "Failed to send message", isSending = false)
                     }

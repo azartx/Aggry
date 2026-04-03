@@ -75,6 +75,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.json)
+            implementation(libs.ktor.client.logger)
             implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {

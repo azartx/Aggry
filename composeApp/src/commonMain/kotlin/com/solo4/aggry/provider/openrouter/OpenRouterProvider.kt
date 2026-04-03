@@ -12,6 +12,10 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.*
+import com.solo4.aggry.log.LogLevel
+import com.solo4.aggry.log.log
+import io.ktor.client.plugins.HttpTimeout
+import kotlin.time.Clock
 
 private const val ALL_MODELS_ENDPOINT = "https://openrouter.ai/api/v1/models?output_modalities=all"
 
@@ -25,6 +29,12 @@ class OpenRouterProvider(
                 ignoreUnknownKeys = true
                 isLenient = true
             })
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 60_000
+            connectTimeoutMillis = 15_000
+            socketTimeoutMillis = 60_000
         }
     }
 
@@ -52,6 +62,8 @@ class OpenRouterProvider(
         modelId: String
     ): Result<ChatResponse> {
         return runCatching {
+            val tag = "OpenRouterProvider"
+            log(LogLevel.INFO, tag, "sendMessage: modelId=$modelId messages=${messages.size} lastIsFromUser=${messages.lastOrNull()?.isFromUser}")
             val lastMessage = messages.lastOrNull()
             // TODO: it is not reliable to check always words in text. it could be maby pressed checkbox which marks chat to generate image
             val wantsImageOutput = lastMessage?.let { msg ->
@@ -77,24 +89,75 @@ class OpenRouterProvider(
             val request = OpenRouterChatRequest(
                 model = modelId,
                 messages = openRouterMessages,
-                modalities = if (wantsImageOutput) listOf("image", "text") else null
+                modalities = buildModalities(modelId = modelId, wantsImageOutput = wantsImageOutput)
             )
 
-            val response: OpenRouterChatResponse = client.post("https://openrouter.ai/api/v1/chat/completions") {
+            log(LogLevel.DEBUG, tag, "Request modalities=${request.modalities} openRouterMessages=${openRouterMessages.size} wantsImageOutput=$wantsImageOutput")
+
+            val httpResponse = client.post("https://openrouter.ai/api/v1/chat/completions") {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
                 contentType(ContentType.Application.Json)
                 setBody(request)
-            }.body()
+            }
+
+            val response: OpenRouterChatResponse = httpResponse.body()
+            log(LogLevel.DEBUG, tag, "Response received: choices=${response.choices.size}")
+            
+            if (response.choices.isEmpty()) {
+                // TODO: Provide UI error later when we finalize error handling.
+            }
 
             val choiceMessage = response.choices.first().message
             val text = choiceMessage.content ?: ""
+            log(LogLevel.DEBUG, tag, "Assistant content len=${text.length} images present=${choiceMessage.images?.size ?: 0}")
             val images = choiceMessage.images?.mapNotNull { img ->
                 val url = img.image_url?.url ?: return@mapNotNull null
+                log(LogLevel.DEBUG, tag, "Decoding generated image dataUrl len=${url.length}")
                 decodeBase64DataUrl(url)
             } ?: emptyList()
 
+            log(
+                LogLevel.INFO,
+                tag,
+                "Success: textLen=${text.length} images=${images.size}"
+            )
             ChatResponse(text = text, images = images)
         }
+        .onFailure { t ->
+            log(LogLevel.ERROR, "OpenRouterProvider", "sendMessage failed: ${t::class.simpleName}: ${t.message}", t)
+        }
+    }
+
+    private var modelsCache: List<AIModel>? = null
+    private var modelsCacheAtMs: Long = 0
+    private val modelsCacheTtlMs: Long = 10 * 60 * 1000
+
+    private suspend fun getModelsCachedOnceOrNull(): List<AIModel>? {
+        val now = Clock.System.now().toEpochMilliseconds()
+        val cached = modelsCache
+        if (cached != null && now - modelsCacheAtMs < modelsCacheTtlMs) return cached
+        val res = getModels()
+        val models = res.getOrNull() ?: return null
+        modelsCache = models
+        modelsCacheAtMs = now
+        return models
+    }
+
+    private suspend fun buildModalities(
+        modelId: String,
+        wantsImageOutput: Boolean
+    ): List<String>? {
+        if (!wantsImageOutput) return null
+
+        val models = getModelsCachedOnceOrNull() ?: return listOf("image")
+        val model = models.firstOrNull { it.id == modelId } ?: return listOf("image")
+
+        val result = buildList {
+            if ("image" in model.outputModalities) add("image")
+            // Only include "text" if the model supports it for output.
+            if ("text" in model.outputModalities) add("text")
+        }
+        return result.ifEmpty { listOf("image") }
     }
 
     private fun decodeBase64DataUrl(dataUrl: String): ByteArray? {
@@ -102,7 +165,13 @@ class OpenRouterProvider(
         val idx = dataUrl.indexOf(prefix)
         if (idx < 0) return null
         val base64 = dataUrl.substring(idx + prefix.length)
-        return base64.decodeBase64()
+        return try {
+            val bytes = base64.decodeBase64()
+            bytes
+        } catch (t: Throwable) {
+            log(LogLevel.ERROR, "OpenRouterProvider", "Failed to decode base64 image: ${t.message}", t)
+            null
+        }
     }
 
     private fun buildContent(text: String, files: List<AttachedFile>): JsonElement {
