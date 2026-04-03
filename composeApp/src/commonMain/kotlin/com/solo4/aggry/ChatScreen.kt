@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,6 +28,7 @@ import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.data.formatFileSize
 import com.solo4.aggry.data.MessageStatus
+import com.solo4.aggry.copy.copyToClipboard
 import com.solo4.aggry.filepicker.rememberFilePicker
 import com.solo4.aggry.img.arrowBack
 
@@ -468,6 +470,7 @@ private fun AttachedFilesRow(
 @Composable
 private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) {
     val isUser = message.isFromUser
+    var menuExpanded by remember(message.id) { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
@@ -488,6 +491,10 @@ private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) 
                     else MaterialTheme.colorScheme.surfaceVariant
                 )
                 .padding(12.dp)
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = { menuExpanded = true }
+                )
         ) {
             if (!isUser && message.status == MessageStatus.FAILED) {
                 // failed incoming messages aren't retryable
@@ -591,6 +598,19 @@ private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) 
                     Spacer(modifier = Modifier.height(4.dp))
                 }
             }
+        }
+
+        androidx.compose.material3.DropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false }
+        ) {
+            androidx.compose.material3.DropdownMenuItem(
+                text = { Text("Copy") },
+                onClick = {
+                    menuExpanded = false
+                    copyToClipboard(message.content)
+                }
+            )
         }
     }
 }
