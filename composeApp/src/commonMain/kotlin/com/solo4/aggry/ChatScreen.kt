@@ -3,6 +3,7 @@ package com.solo4.aggry
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,7 +28,13 @@ import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.data.formatFileSize
 import com.solo4.aggry.filepicker.rememberFilePicker
+import com.solo4.aggry.save.savePhotoToGallery
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.solo4.aggry.img.arrowBack
+import com.solo4.aggry.save.savePhotoToGallery
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -529,12 +536,32 @@ private fun MessageBubble(message: ChatMessage) {
             if (message.generatedImages.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 message.generatedImages.forEach { image ->
+                    var viewerOpen by remember(image.cachedPath) { mutableStateOf(false) }
+                    if (viewerOpen) {
+                        PhotoViewer(
+                            image = image,
+                            onDismiss = { viewerOpen = false },
+                            onDownload = {
+                                // todo: show success or error result
+                                /*CoroutineScope(Dispatchers.Default).launch {
+                                    val result = savePhotoToGallery(image.cachedPath)
+                                    withContext(Dispatchers.Main) {
+                                        result.onSuccess {
+                                        }.onFailure { t ->
+                                        }
+                                    }
+                                }*/
+                            }
+                        )
+                    }
+
                     CachedImage(
                         path = image.cachedPath,
                         contentDescription = "Generated image",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp)),
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { viewerOpen = true },
                         contentScale = ContentScale.FillWidth
                     )
                     Spacer(modifier = Modifier.height(4.dp))

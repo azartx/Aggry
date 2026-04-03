@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         initSettingsFactory(applicationContext)
+        com.solo4.aggry.AndroidContextHolder.context = applicationContext
         AggryDatabaseProvider.init(
             driverFactory = DatabaseDriverFactory(applicationContext),
             cache = FileCache(applicationContext)
