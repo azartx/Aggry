@@ -27,6 +27,7 @@ import com.solo4.aggry.data.AttachedFile
 import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.data.formatFileSize
+import com.solo4.aggry.data.MessageStatus
 import com.solo4.aggry.filepicker.rememberFilePicker
 import com.solo4.aggry.save.savePhotoToGallery
 import kotlinx.coroutines.Dispatchers
@@ -142,7 +143,7 @@ fun ChatScreen(
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     items(uiState.messages, key = { it.id }) { message ->
-                        MessageBubble(message = message)
+                        MessageBubble(message = message, onRetry = { viewModel.retryFailedMessage(it) })
                     }
 
                     if (uiState.isSending) {
@@ -468,7 +469,7 @@ private fun AttachedFilesRow(
 }
 
 @Composable
-private fun MessageBubble(message: ChatMessage) {
+private fun MessageBubble(message: ChatMessage, onRetry: (ChatMessage) -> Unit) {
     val isUser = message.isFromUser
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -491,6 +492,32 @@ private fun MessageBubble(message: ChatMessage) {
                 )
                 .padding(12.dp)
         ) {
+            if (!isUser && message.status == MessageStatus.FAILED) {
+                // failed incoming messages aren't retryable
+            }
+            if (isUser && message.status == MessageStatus.FAILED) {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onRetry(message) }
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = "Not sent",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Tap to retry",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
             if (message.attachedFiles.isNotEmpty()) {
                 message.attachedFiles.forEach { file ->
                     Surface(

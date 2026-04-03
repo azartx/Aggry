@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+import com.solo4.aggry.data.MessageStatus
+
 class ChatViewModel(
     private val provider: AIChatProvider,
     private val apiKeyId: String,
@@ -119,6 +121,7 @@ class ChatViewModel(
             id = Uuid.random().toString(),
             content = text,
             isFromUser = true,
+            status = MessageStatus.SENT,
             attachedFiles = files
         )
 
@@ -172,11 +175,29 @@ class ChatViewModel(
                         "ChatViewModel",
                         "sendMessage failed: ${error::class.simpleName}: ${error.message}"
                     )
-                    _uiState.update {
-                        it.copy(error = error.message ?: "Failed to send message", isSending = false)
+                    _uiState.update { state ->
+                        val updatedMessages = state.messages.map { msg ->
+                            if (msg.id == userMessage.id && msg.isFromUser) {
+                                msg.copy(status = MessageStatus.FAILED)
+                            } else msg
+                        }
+                        state.copy(
+                            error = error.message ?: "Failed to send message",
+                            isSending = false,
+                            messages = updatedMessages
+                        )
                     }
                 }
         }
+    }
+
+    fun retryFailedMessage(message: ChatMessage) {
+        if (!message.isFromUser || message.status != MessageStatus.FAILED) return
+        // TODO: avoid duplicating user message in DB when we implement real retry semantics.
+        _uiState.update {
+            it.copy(messageInput = message.content, attachedFiles = message.attachedFiles)
+        }
+        sendMessage()
     }
 
     fun clearError() {

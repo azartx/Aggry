@@ -18,9 +18,15 @@ data class ChatMessage(
     val id: String,
     val content: String,
     val isFromUser: Boolean,
+    val status: MessageStatus = MessageStatus.SENT,
     val attachedFiles: List<AttachedFile> = emptyList(),
     val generatedImages: List<GeneratedImage> = emptyList()
 )
+
+enum class MessageStatus {
+    SENT,
+    FAILED
+}
 
 data class GeneratedImage(
     val cachedPath: String,

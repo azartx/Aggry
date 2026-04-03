@@ -4,6 +4,7 @@ import com.solo4.aggry.data.AttachedFile
 import com.solo4.aggry.data.ChatMessage
 import com.solo4.aggry.data.Conversation
 import com.solo4.aggry.data.GeneratedImage
+import com.solo4.aggry.data.MessageStatus
 
 object ConversationMapper {
 
@@ -48,6 +49,7 @@ object MessageMapper {
             id = id,
             content = content,
             isFromUser = isFromUser,
+            status = MessageStatus.SENT,
             attachedFiles = files,
             generatedImages = images
         )
