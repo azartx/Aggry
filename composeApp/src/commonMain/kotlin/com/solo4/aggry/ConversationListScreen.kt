@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.Conversation
 import com.solo4.aggry.data.ConversationListViewModel
+import com.solo4.aggry.img.arrowBack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +36,7 @@ fun ConversationListScreen(
                 title = { Text(apiKey.name) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Text("<-")
+                        Icon(imageVector = arrowBack, contentDescription = "Back")
                     }
                 }
             )
