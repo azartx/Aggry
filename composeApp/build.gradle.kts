@@ -77,6 +77,8 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.logger)
             implementation(libs.sqldelight.coroutines)
+            implementation(libs.markdown)
+            implementation(libs.markdown.m3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

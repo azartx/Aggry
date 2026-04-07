@@ -22,7 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownColor
 import com.solo4.aggry.data.AIModel
 import com.solo4.aggry.data.AttachedFile
 import com.solo4.aggry.data.ChatMessage
@@ -563,11 +564,17 @@ private fun MessageBubble(message: ChatMessage, scope: CoroutineScope, onRetry: 
                 }
             }
             if (message.content.isNotBlank()) {
-                Text(
-                    text = message.content,
-                    color = if (isUser) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (isUser) {
+                    Text(
+                        text = message.content,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Markdown(
+                        message.content,
+                        colors = markdownColor(text = MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                }
             }
             if (message.generatedImages.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
