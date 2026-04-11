@@ -18,4 +18,7 @@
     <string name="save_key">Сохранить ключ</string>
     <string name="no_api_keys">Ключи API еще не добавлены</string>
     <string name="no_conversations">Пока нет диалогов.\nНажмите +, чтобы начать новый чат.</string>
+    <string name="error_timeout">Превышено время ожидания соединения. Проверьте интернет-подключение.</string>
+    <string name="error_network">Не удается подключиться к серверу. Проверьте интернет-подключение.</string>
+    <string name="error_unknown">Неизвестная ошибка</string>
 </resources>

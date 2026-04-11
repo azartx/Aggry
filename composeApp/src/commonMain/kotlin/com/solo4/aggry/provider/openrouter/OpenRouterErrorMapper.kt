@@ -1,12 +1,17 @@
 package com.solo4.aggry.provider.openrouter
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.error_network
+import aggry.composeapp.generated.resources.error_timeout
+import aggry.composeapp.generated.resources.error_unknown
 import com.solo4.aggry.provider.model.Localizable
 import io.ktor.client.network.sockets.SocketTimeoutException
 import kotlinx.io.IOException
+import org.jetbrains.compose.resources.getString
 
 class OpenRouterErrorMapper {
 
-    fun map(exception: Throwable): Exception {
+    suspend fun map(exception: Throwable): Exception {
         return when (exception) {
             is OpenRouterErrorResponse -> {
                 val errorType = OpenRouterErrorHandler.getErrorType(exception.error.code)
@@ -20,21 +25,21 @@ class OpenRouterErrorMapper {
 
             is SocketTimeoutException -> {
                 OtherException(
-                    "Превышено время ожидания соединения. Проверьте интернет-подключение.",
+                    getString(Res.string.error_timeout),
                     exception
                 )
             }
 
             is IOException -> {
                 OtherException(
-                    "Не удается подключиться к серверу. Проверьте интернет-подключение.",
+                    getString(Res.string.error_network),
                     exception
                 )
             }
 
             else -> {
                 OtherException(
-                    "Неизвестная ошибка",
+                    getString(Res.string.error_unknown),
                     exception
                 )
             }
