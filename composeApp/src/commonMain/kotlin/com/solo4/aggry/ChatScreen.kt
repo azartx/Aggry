@@ -59,6 +59,7 @@ fun ChatScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val filePicker = rememberFilePicker { files ->
         viewModel.attachFiles(files)
@@ -72,6 +73,7 @@ fun ChatScreen(
 
     uiState.error?.let { error ->
         LaunchedEffect(error) {
+            snackbarHostState.showSnackbar(error)
             viewModel.clearError()
         }
     }
@@ -87,6 +89,7 @@ fun ChatScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {

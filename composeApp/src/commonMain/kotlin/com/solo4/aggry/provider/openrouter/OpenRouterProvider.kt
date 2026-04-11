@@ -66,7 +66,7 @@ class OpenRouterProvider(
             }
         }
             .onFailure { throwable ->
-                throw errorMapper.map(throwable)
+                return Result.failure(errorMapper.map(throwable))
             }
     }
 
@@ -158,7 +158,7 @@ class OpenRouterProvider(
 
                 log(LogLevel.ERROR, "OpenRouter", error.stackTraceToString())
 
-                throw error
+                return Result.failure(error)
             }
     }
 

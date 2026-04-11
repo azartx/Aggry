@@ -1,5 +1,7 @@
 package com.solo4.aggry.data
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.error_unknown
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.solo4.aggry.db.AggryDatabaseProvider
@@ -15,6 +17,7 @@ import kotlin.uuid.Uuid
 
 import com.solo4.aggry.data.MessageStatus
 import com.solo4.aggry.provider.model.Localizable
+import org.jetbrains.compose.resources.getString
 
 class ChatViewModel(
     private val provider: AIChatProvider,
@@ -58,7 +61,7 @@ class ChatViewModel(
 
     fun loadModels() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingModels = true) }
+            _uiState.update { it.copy(isLoadingModels = true, error = null) }
             provider.getModels()
                 .onSuccess { models ->
                     _uiState.update { it.copy(availableModels = models, isLoadingModels = false) }
@@ -131,7 +134,8 @@ class ChatViewModel(
                 messages = it.messages + userMessage,
                 messageInput = "",
                 attachedFiles = emptyList(),
-                isSending = true
+                isSending = true,
+                error = null
             )
         }
 
@@ -183,7 +187,11 @@ class ChatViewModel(
                             } else msg
                         }
                         state.copy(
-                            error = if (error is Localizable) error.getLocalizedText() else "Unknown error",
+                            error = if (error is Localizable) {
+                                error.getLocalizedText()
+                            } else {
+                                getString(Res.string.error_unknown)
+                            },
                             isSending = false,
                             messages = updatedMessages
                         )

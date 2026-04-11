@@ -1,11 +1,10 @@
 package com.solo4.aggry.provider.openrouter
 
-import com.solo4.aggry.log.LogLevel
-import com.solo4.aggry.log.log
 import com.solo4.aggry.provider.model.ProviderError
 import com.solo4.aggry.provider.model.ProviderErrorDto
 import com.solo4.aggry.provider.model.ProviderErrorType
 import com.solo4.aggry.provider.openrouter.OpenRouterErrorHandler.getUserFriendlyMessage
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -16,8 +15,17 @@ import kotlinx.serialization.json.Json
 data class OpenRouterErrorDto(
     override val code: Int,
     override val message: String,
-    val metadata: Map<String, String>? = null
+    val metadata: ErrorMetadata? = null
 ) : ProviderErrorDto
+
+@Serializable
+data class ErrorMetadata(
+    val raw: String,
+    @SerialName("provider_name")
+    val providerName: String,
+    @SerialName("is_byok")
+    val isByok: Boolean
+)
 
 class OpenRouterProviderException(
     override val type: OpenRouterErrorType,
