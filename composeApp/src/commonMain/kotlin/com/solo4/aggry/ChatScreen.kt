@@ -64,9 +64,9 @@ fun ChatScreen(
         viewModel.attachFiles(files)
     }
 
-    LaunchedEffect(uiState.messages.size) {
-        if (uiState.messages.isNotEmpty()) {
-            listState.animateScrollToItem(uiState.messages.size - 1)
+    LaunchedEffect(uiState.messages.size, uiState.isSending) {
+        if (uiState.messages.isNotEmpty() || uiState.isSending) {
+            listState.animateScrollToItem(0)
         }
     }
 
@@ -157,26 +157,33 @@ fun ChatScreen(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    reverseLayout = true,
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
-                    items(uiState.messages, key = { it.id }) { message ->
+                    if (uiState.isSending) {
+                        item(key = "sending_indicator") {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .size(24.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    val reversedMessages = uiState.messages.asReversed()
+                    items(reversedMessages, key = { it.id }) { message ->
                         MessageBubble(
                             message = message,
                             scope = scope,
                             onRetry = { viewModel.retryFailedMessage(it) },
                             onDelete = { viewModel.deleteMessage(it.id) }
                         )
-                    }
-
-                    if (uiState.isSending) {
-                        item {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .size(24.dp)
-                            )
-                        }
                     }
                 }
             }
