@@ -204,6 +204,15 @@ class ChatViewModel(
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }
+
+    fun deleteMessage(messageId: String) {
+        viewModelScope.launch {
+            repository.deleteMessage(messageId)
+            _uiState.update { state ->
+                state.copy(messages = state.messages.filter { it.id != messageId })
+            }
+        }
+    }
 }
 
 data class ChatUiState(

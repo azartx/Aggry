@@ -21,4 +21,5 @@
     <string name="error_timeout">Превышено время ожидания соединения. Проверьте интернет-подключение.</string>
     <string name="error_network">Не удается подключиться к серверу. Проверьте интернет-подключение.</string>
     <string name="error_unknown">Неизвестная ошибка</string>
+    <string name="delete">Удалить</string>
 </resources>

@@ -47,6 +47,7 @@ import aggry.composeapp.generated.resources.no_models_found
 import aggry.composeapp.generated.resources.not_sent
 import aggry.composeapp.generated.resources.tap_to_retry
 import aggry.composeapp.generated.resources.copy
+import aggry.composeapp.generated.resources.delete
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,7 +161,12 @@ fun ChatScreen(
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     items(uiState.messages, key = { it.id }) { message ->
-                        MessageBubble(message = message, scope, onRetry = { viewModel.retryFailedMessage(it) })
+                        MessageBubble(
+                            message = message,
+                            scope = scope,
+                            onRetry = { viewModel.retryFailedMessage(it) },
+                            onDelete = { viewModel.deleteMessage(it.id) }
+                        )
                     }
 
                     if (uiState.isSending) {
@@ -250,14 +256,14 @@ private fun ModelPickerSheet(
     val filteredModels = remember(models, searchQuery, selectedTags.toList()) {
         models.filter { model ->
             val matchesSearch = searchQuery.isBlank() ||
-                model.name.contains(searchQuery, ignoreCase = true) ||
-                model.id.contains(searchQuery, ignoreCase = true)
+                    model.name.contains(searchQuery, ignoreCase = true) ||
+                    model.id.contains(searchQuery, ignoreCase = true)
 
             val modelTags = model.inputModalities.map { "in:$it" } +
-                model.outputModalities.map { "out:$it" }
+                    model.outputModalities.map { "out:$it" }
 
             val matchesTags = selectedTags.isEmpty() ||
-                selectedTags.all { it in modelTags }
+                    selectedTags.all { it in modelTags }
 
             matchesSearch && matchesTags
         }
@@ -486,149 +492,167 @@ private fun AttachedFilesRow(
 }
 
 @Composable
-private fun MessageBubble(message: ChatMessage, scope: CoroutineScope, onRetry: (ChatMessage) -> Unit) {
+private fun MessageBubble(
+    message: ChatMessage,
+    scope: CoroutineScope,
+    onRetry: (ChatMessage) -> Unit,
+    onDelete: (ChatMessage) -> Unit
+) {
     val isUser = message.isFromUser
     var menuExpanded by remember(message.id) { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
-        Column(
-            modifier = Modifier
-                .widthIn(max = 300.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (isUser) 16.dp else 4.dp,
-                        bottomEnd = if (isUser) 4.dp else 16.dp
+        Box {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 300.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp,
+                            bottomStart = if (isUser) 16.dp else 4.dp,
+                            bottomEnd = if (isUser) 4.dp else 16.dp
+                        )
                     )
-                )
-                .background(
-                    if (isUser) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.surfaceVariant
-                )
-                .padding(12.dp)
-                .combinedClickable(
-                    onClick = {},
-                    onLongClick = { menuExpanded = true }
-                )
-        ) {
-            if (!isUser && message.status == MessageStatus.FAILED) {
-                // failed incoming messages aren't retryable
-            }
-            if (isUser && message.status == MessageStatus.FAILED) {
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onRetry(message) }
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = stringResource(Res.string.not_sent),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(Res.string.tap_to_retry),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
+                    .background(
+                        if (isUser) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .padding(12.dp)
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = { menuExpanded = true }
+                    )
+            ) {
+                if (!isUser && message.status == MessageStatus.FAILED) {
+                    // failed incoming messages aren't retryable
                 }
-            }
-            if (message.attachedFiles.isNotEmpty()) {
-                message.attachedFiles.forEach { file ->
+                if (isUser && message.status == MessageStatus.FAILED) {
                     Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = if (isUser) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                        else MaterialTheme.colorScheme.secondaryContainer
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onRetry(message) }
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
                             Text(
-                                text = if (file.isImage) "\uD83D\uDDBC" else "\uD83D\uDCC4",
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                            Text(
-                                text = file.name,
+                                text = stringResource(Res.string.not_sent),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (isUser) MaterialTheme.colorScheme.onPrimary
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                color = MaterialTheme.colorScheme.onErrorContainer
                             )
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = formatFileSize(file.bytes.size),
+                                text = stringResource(Res.string.tap_to_retry),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                color = MaterialTheme.colorScheme.onErrorContainer
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
                 }
-            }
-            if (message.content.isNotBlank()) {
-                if (isUser) {
-                    Text(
-                        text = message.content,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Markdown(
-                        message.content,
-                        colors = markdownColor(text = MaterialTheme.colorScheme.onSurfaceVariant)
-                    )
-                }
-            }
-            if (message.generatedImages.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                message.generatedImages.forEach { image ->
-                    var viewerOpen by remember(image.cachedPath) { mutableStateOf(false) }
-                    if (viewerOpen) {
-                        PhotoViewer(
-                            image = image,
-                            onDismiss = { viewerOpen = false },
-                            onDownload = {
-                                scope.launch {
-                                    savePhotoToGallery(image.cachedPath, image.mimeType)
-                                }
+                if (message.attachedFiles.isNotEmpty()) {
+                    message.attachedFiles.forEach { file ->
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = if (isUser) MaterialTheme.colorScheme.primaryContainer.copy(
+                                alpha = 0.5f
+                            )
+                            else MaterialTheme.colorScheme.secondaryContainer
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = if (file.isImage) "\uD83D\uDDBC" else "\uD83D\uDCC4",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = file.name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isUser) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = formatFileSize(file.bytes.size),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(
+                                        alpha = 0.7f
+                                    )
+                                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
                             }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+                if (message.content.isNotBlank()) {
+                    if (isUser) {
+                        Text(
+                            text = message.content,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Markdown(
+                            message.content,
+                            colors = markdownColor(text = MaterialTheme.colorScheme.onSurfaceVariant)
                         )
                     }
+                }
+                if (message.generatedImages.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    message.generatedImages.forEach { image ->
+                        var viewerOpen by remember(image.cachedPath) { mutableStateOf(false) }
+                        if (viewerOpen) {
+                            PhotoViewer(
+                                image = image,
+                                onDismiss = { viewerOpen = false },
+                                onDownload = {
+                                    scope.launch {
+                                        savePhotoToGallery(image.cachedPath, image.mimeType)
+                                    }
+                                }
+                            )
+                        }
 
-                    CachedImage(
-                        path = image.cachedPath,
-                        contentDescription = "Generated image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { viewerOpen = true },
-                        contentScale = ContentScale.FillWidth
+                        CachedImage(
+                            path = image.cachedPath,
+                            contentDescription = "Generated image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { viewerOpen = true },
+                            contentScale = ContentScale.FillWidth
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+
+                androidx.compose.material3.DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(Res.string.copy)) },
+                        onClick = {
+                            menuExpanded = false
+                            copyToClipboard(message.content)
+                        }
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(Res.string.delete)) },
+                        onClick = {
+                            menuExpanded = false
+                            onDelete(message)
+                        }
+                    )
                 }
             }
-        }
-
-        androidx.compose.material3.DropdownMenu(
-            expanded = menuExpanded,
-            onDismissRequest = { menuExpanded = false }
-        ) {
-            androidx.compose.material3.DropdownMenuItem(
-                text = { Text(stringResource(Res.string.copy)) },
-                onClick = {
-                    menuExpanded = false
-                    copyToClipboard(message.content)
-                }
-            )
         }
     }
 }

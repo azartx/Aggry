@@ -69,6 +69,9 @@ VALUES (:id, :conversationId, :content, :isFromUser, :createdAt);
 deleteMessagesByConversation:
 DELETE FROM messages WHERE conversation_id = :conversationId;
 
+deleteMessageById:
+DELETE FROM messages WHERE id = :id;
+
 -- Attached files queries
 selectFilesByMessage:
 SELECT * FROM attached_files WHERE message_id = :messageId AND is_generated = 0;

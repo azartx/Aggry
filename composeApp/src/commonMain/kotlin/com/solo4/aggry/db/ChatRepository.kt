@@ -152,4 +152,14 @@ class ChatRepository {
         }
         queries.deleteConversation(conversationId)
     }
+
+    suspend fun deleteMessage(messageId: String) = withContext(Dispatchers.Default) {
+        queries.selectFilesByMessage(messageId).executeAsList().forEach { fileRow ->
+            fileCache.deleteFile(fileRow.cached_path)
+        }
+        queries.selectGeneratedImagesByMessage(messageId).executeAsList().forEach { imgRow ->
+            fileCache.deleteFile(imgRow.cached_path)
+        }
+        queries.deleteMessageById(messageId)
+    }
 }
