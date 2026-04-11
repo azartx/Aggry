@@ -48,6 +48,12 @@ import aggry.composeapp.generated.resources.not_sent
 import aggry.composeapp.generated.resources.tap_to_retry
 import aggry.composeapp.generated.resources.copy
 import aggry.composeapp.generated.resources.delete
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,7 +209,7 @@ fun ChatScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box {
@@ -228,7 +234,19 @@ fun ChatScreen(
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(Res.string.type_a_message)) },
                     singleLine = false,
-                    maxLines = 4
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = true,
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Send,
+                        showKeyboardOnFocus = true
+                    ),
+                    maxLines = 4,
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            viewModel.sendMessage()
+                        }
+                    )
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -416,7 +434,7 @@ private fun ModelListItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .padding(vertical = 10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -455,7 +473,7 @@ private fun AttachedFilesRow(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         itemsIndexed(files) { index, file ->
@@ -464,7 +482,7 @@ private fun AttachedFilesRow(
                 color = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
