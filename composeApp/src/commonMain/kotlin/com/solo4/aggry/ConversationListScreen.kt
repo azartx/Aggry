@@ -16,6 +16,10 @@ import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.Conversation
 import com.solo4.aggry.data.ConversationListViewModel
 import com.solo4.aggry.img.arrowBack
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.no_conversations
+import aggry.composeapp.generated.resources.close_x
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +59,7 @@ fun ConversationListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No conversations yet.\nTap + to start a new chat.",
+                    text = stringResource(Res.string.no_conversations),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -117,7 +121,7 @@ private fun ConversationItem(
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = "X",
+                    text = stringResource(Res.string.close_x),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onErrorContainer
                 )

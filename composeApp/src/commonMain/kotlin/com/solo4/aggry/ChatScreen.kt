@@ -36,6 +36,18 @@ import com.solo4.aggry.filepicker.rememberFilePicker
 import com.solo4.aggry.img.arrowBack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.select_model
+import aggry.composeapp.generated.resources.type_a_message
+import aggry.composeapp.generated.resources.send
+import aggry.composeapp.generated.resources.search_models
+import aggry.composeapp.generated.resources.close_x
+import aggry.composeapp.generated.resources.start_chatting
+import aggry.composeapp.generated.resources.no_models_found
+import aggry.composeapp.generated.resources.not_sent
+import aggry.composeapp.generated.resources.tap_to_retry
+import aggry.composeapp.generated.resources.copy
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +90,7 @@ fun ChatScreen(
             TopAppBar(
                 title = {
                     if (uiState.selectedModel?.name.isNullOrBlank()) {
-                        Text("Select Model")
+                        Text(stringResource(Res.string.select_model))
                     }
                 },
                 navigationIcon = {
@@ -132,7 +144,7 @@ fun ChatScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Send a message to start chatting",
+                        text = stringResource(Res.string.start_chatting),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -198,7 +210,7 @@ fun ChatScreen(
                     value = uiState.messageInput,
                     onValueChange = { viewModel.updateMessageInput(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Type a message...") },
+                    placeholder = { Text(stringResource(Res.string.type_a_message)) },
                     singleLine = false,
                     maxLines = 4
                 )
@@ -209,7 +221,7 @@ fun ChatScreen(
                     onClick = { viewModel.sendMessage() },
                     enabled = viewModel.canSend()
                 ) {
-                    Text("Send")
+                    Text(stringResource(Res.string.send))
                 }
             }
         }
@@ -261,7 +273,7 @@ private fun ModelPickerSheet(
                 .padding(bottom = 32.dp)
         ) {
             Text(
-                text = "Select Model",
+                text = stringResource(Res.string.select_model),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -274,12 +286,12 @@ private fun ModelPickerSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                placeholder = { Text("Search models...") },
+                placeholder = { Text(stringResource(Res.string.search_models)) },
                 singleLine = true,
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Text("X")
+                            Text(stringResource(Res.string.close_x))
                         }
                     }
                 }
@@ -338,7 +350,7 @@ private fun ModelPickerSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No models found",
+                        text = stringResource(Res.string.no_models_found),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -515,13 +527,13 @@ private fun MessageBubble(message: ChatMessage, scope: CoroutineScope, onRetry: 
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = "Not sent",
+                            text = stringResource(Res.string.not_sent),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Tap to retry",
+                            text = stringResource(Res.string.tap_to_retry),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -611,7 +623,7 @@ private fun MessageBubble(message: ChatMessage, scope: CoroutineScope, onRetry: 
             onDismissRequest = { menuExpanded = false }
         ) {
             androidx.compose.material3.DropdownMenuItem(
-                text = { Text("Copy") },
+                text = { Text(stringResource(Res.string.copy)) },
                 onClick = {
                     menuExpanded = false
                     copyToClipboard(message.content)

@@ -13,6 +13,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.ApiKeyViewModel
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.api_keys
+import aggry.composeapp.generated.resources.key_name
+import aggry.composeapp.generated.resources.api_key
+import aggry.composeapp.generated.resources.save_key
+import aggry.composeapp.generated.resources.no_api_keys
+import aggry.composeapp.generated.resources.close_x
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ApiKeyScreen(
@@ -27,7 +35,7 @@ fun ApiKeyScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "API Keys",
+            text = stringResource(Res.string.api_keys),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -43,7 +51,7 @@ fun ApiKeyScreen(
                 OutlinedTextField(
                     value = uiState.nameInput,
                     onValueChange = { viewModel.updateNameInput(it) },
-                    label = { Text("Key Name") },
+                    label = { Text(stringResource(Res.string.key_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -53,7 +61,7 @@ fun ApiKeyScreen(
                 OutlinedTextField(
                     value = uiState.keyInput,
                     onValueChange = { viewModel.updateKeyInput(it) },
-                    label = { Text("API Key") },
+                    label = { Text(stringResource(Res.string.api_key)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation()
@@ -69,7 +77,7 @@ fun ApiKeyScreen(
                     modifier = Modifier.align(Alignment.End),
                     enabled = uiState.nameInput.isNotBlank() && uiState.keyInput.isNotBlank()
                 ) {
-                    Text("Save Key")
+                    Text(stringResource(Res.string.save_key))
                 }
             }
         }
@@ -80,7 +88,7 @@ fun ApiKeyScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No API keys added yet",
+                    text = stringResource(Res.string.no_api_keys),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -114,7 +122,7 @@ fun ApiKeyScreen(
                                 )
                             }
                             IconButton(onClick = { viewModel.removeKey(apiKey.id) }) {
-                                Text("X")
+                                Text(stringResource(Res.string.close_x))
                             }
                         }
                     }

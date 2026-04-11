@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_model">Выберите модель</string>
+    <string name="type_a_message">Введите сообщение...</string>
+    <string name="send">Отправить</string>
+    <string name="search_models">Поиск моделей...</string>
+    <string name="close_x">X</string>
+    <string name="start_chatting">Отправьте сообщение, чтобы начать чат</string>
+    <string name="no_models_found">Модели не найдены</string>
+    <string name="not_sent">Не отправлено</string>
+    <string name="tap_to_retry">Нажмите, чтобы повторить</string>
+    <string name="copy">Копировать</string>
+    <string name="close">Закрыть</string>
+    <string name="download">Скачать</string>
+    <string name="api_keys">Ключи API</string>
+    <string name="key_name">Имя ключа</string>
+    <string name="api_key">Ключ API</string>
+    <string name="save_key">Сохранить ключ</string>
+    <string name="no_api_keys">Ключи API еще не добавлены</string>
+    <string name="no_conversations">Пока нет диалогов.\nНажмите +, чтобы начать новый чат.</string>
+</resources>

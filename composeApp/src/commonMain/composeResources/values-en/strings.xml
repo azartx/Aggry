@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_model">Select Model</string>
+    <string name="type_a_message">Type a message...</string>
+    <string name="send">Send</string>
+    <string name="search_models">Search models...</string>
+    <string name="close_x">X</string>
+    <string name="start_chatting">Send a message to start chatting</string>
+    <string name="no_models_found">No models found</string>
+    <string name="not_sent">Not sent</string>
+    <string name="tap_to_retry">Tap to retry</string>
+    <string name="copy">Copy</string>
+    <string name="close">Close</string>
+    <string name="download">Download</string>
+    <string name="api_keys">API Keys</string>
+    <string name="key_name">Key Name</string>
+    <string name="api_key">API Key</string>
+    <string name="save_key">Save Key</string>
+    <string name="no_api_keys">No API keys added yet</string>
+    <string name="no_conversations">No conversations yet.\nTap + to start a new chat.</string>
+</resources>

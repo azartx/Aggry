@@ -5,12 +5,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.solo4.aggry.data.GeneratedImage
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.close
+import aggry.composeapp.generated.resources.download
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +61,7 @@ fun PhotoViewer(
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Close")
+                    Text(stringResource(Res.string.close))
                 }
 
                 Button(
@@ -66,7 +69,7 @@ fun PhotoViewer(
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Download")
+                    Text(stringResource(Res.string.download))
                 }
             }
 
