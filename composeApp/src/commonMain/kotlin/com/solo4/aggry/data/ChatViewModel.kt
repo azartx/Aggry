@@ -14,6 +14,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 import com.solo4.aggry.data.MessageStatus
+import com.solo4.aggry.provider.model.Localizable
 
 class ChatViewModel(
     private val provider: AIChatProvider,
@@ -182,7 +183,7 @@ class ChatViewModel(
                             } else msg
                         }
                         state.copy(
-                            error = error.message ?: "Failed to send message",
+                            error = if (error is Localizable) error.getLocalizedText() else "Unknown error",
                             isSending = false,
                             messages = updatedMessages
                         )

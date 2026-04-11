@@ -15,9 +15,12 @@ import kotlinx.serialization.json.*
 import com.solo4.aggry.log.LogLevel
 import com.solo4.aggry.log.log
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import kotlin.time.Clock
 
 private const val ALL_MODELS_ENDPOINT = "https://openrouter.ai/api/v1/models?output_modalities=all"
+private const val TAG = "OpenRouterProvider"
 
 class OpenRouterProvider(
     private val apiKey: String
@@ -38,12 +41,19 @@ class OpenRouterProvider(
         }
     }
 
+    private val errorMapper = OpenRouterErrorMapper()
+
     override suspend fun getModels(): Result<List<AIModel>> {
         return runCatching {
-            val response: OpenRouterModelsResponse = client.get(ALL_MODELS_ENDPOINT) {
+            val response = client.get(ALL_MODELS_ENDPOINT) {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
-            }.body()
-            response.data.map {
+            }
+
+            checkOkResponse(response)
+
+            val responseBody = response.body<OpenRouterModelsResponse>()
+
+            responseBody.data.map {
                 AIModel(
                     id = it.id,
                     name = it.name,
@@ -55,6 +65,9 @@ class OpenRouterProvider(
                 )
             }
         }
+            .onFailure { throwable ->
+                throw errorMapper.map(throwable)
+            }
     }
 
     override suspend fun sendMessage(
@@ -62,21 +75,24 @@ class OpenRouterProvider(
         modelId: String
     ): Result<ChatResponse> {
         return runCatching {
-            val tag = "OpenRouterProvider"
-            log(LogLevel.INFO, tag, "sendMessage: modelId=$modelId messages=${messages.size} lastIsFromUser=${messages.lastOrNull()?.isFromUser}")
+            log(
+                LogLevel.INFO,
+                TAG,
+                "sendMessage: modelId=$modelId messages=${messages.size} lastIsFromUser=${messages.lastOrNull()?.isFromUser}"
+            )
             val lastMessage = messages.lastOrNull()
             // TODO: it is not reliable to check always words in text. it could be maby pressed checkbox which marks chat to generate image
             val wantsImageOutput = lastMessage?.let { msg ->
                 msg.content.contains("generate", ignoreCase = true) ||
-                msg.content.contains("create", ignoreCase = true) ||
-                msg.content.contains("draw", ignoreCase = true) ||
-                msg.content.contains("image", ignoreCase = true) ||
-                msg.content.contains("picture", ignoreCase = true) ||
-                msg.content.contains("photo", ignoreCase = true) ||
-                msg.content.contains("изобрази", ignoreCase = true) ||
-                msg.content.contains("нарисуй", ignoreCase = true) ||
-                msg.content.contains("сгенерируй", ignoreCase = true) ||
-                msg.content.contains("картинк", ignoreCase = true)
+                        msg.content.contains("create", ignoreCase = true) ||
+                        msg.content.contains("draw", ignoreCase = true) ||
+                        msg.content.contains("image", ignoreCase = true) ||
+                        msg.content.contains("picture", ignoreCase = true) ||
+                        msg.content.contains("photo", ignoreCase = true) ||
+                        msg.content.contains("изобрази", ignoreCase = true) ||
+                        msg.content.contains("нарисуй", ignoreCase = true) ||
+                        msg.content.contains("сгенерируй", ignoreCase = true) ||
+                        msg.content.contains("картинк", ignoreCase = true)
             } ?: false
 
             val openRouterMessages = messages.map { msg ->
@@ -92,7 +108,11 @@ class OpenRouterProvider(
                 modalities = buildModalities(modelId = modelId, wantsImageOutput = wantsImageOutput)
             )
 
-            log(LogLevel.DEBUG, tag, "Request modalities=${request.modalities} openRouterMessages=${openRouterMessages.size} wantsImageOutput=$wantsImageOutput")
+            log(
+                LogLevel.DEBUG,
+                TAG,
+                "Request modalities=${request.modalities} openRouterMessages=${openRouterMessages.size} wantsImageOutput=$wantsImageOutput"
+            )
 
             val httpResponse = client.post("https://openrouter.ai/api/v1/chat/completions") {
                 header(HttpHeaders.Authorization, "Bearer $apiKey")
@@ -100,31 +120,58 @@ class OpenRouterProvider(
                 setBody(request)
             }
 
+            checkOkResponse(httpResponse)
+
+            val responseBotyText = httpResponse.bodyAsText()
+            log(LogLevel.DEBUG, TAG, "Response body: ${responseBotyText.trim()}")
             val response: OpenRouterChatResponse = httpResponse.body()
-            log(LogLevel.DEBUG, tag, "Response received: choices=${response.choices.size}")
-            
+            log(LogLevel.DEBUG, TAG, "Response received: choices=${response.choices.size}")
+
             if (response.choices.isEmpty()) {
-                // TODO: Provide UI error later when we finalize error handling.
+                // Handle case where no choices are returned
+                throw Exception("Не получен ответ от модели. Попробуйте снова.")
             }
 
             val choiceMessage = response.choices.first().message
             val text = choiceMessage.content ?: ""
-            log(LogLevel.DEBUG, tag, "Assistant content len=${text.length} images present=${choiceMessage.images?.size ?: 0}")
+            log(
+                LogLevel.DEBUG,
+                TAG,
+                "Assistant content len=${text.length} images present=${choiceMessage.images?.size ?: 0}"
+            )
             val images = choiceMessage.images?.mapNotNull { img ->
                 val url = img.image_url?.url ?: return@mapNotNull null
-                log(LogLevel.DEBUG, tag, "Decoding generated image dataUrl len=${url.length}")
+                log(LogLevel.DEBUG, TAG, "Decoding generated image dataUrl len=${url.length}")
                 decodeBase64DataUrl(url)
             } ?: emptyList()
 
             log(
                 LogLevel.INFO,
-                tag,
+                TAG,
                 "Success: textLen=${text.length} images=${images.size}"
             )
             ChatResponse(text = text, images = images)
         }
-        .onFailure { t ->
-            log(LogLevel.ERROR, "OpenRouterProvider", "sendMessage failed: ${t::class.simpleName}: ${t.message}", t)
+            .onFailure { throwable ->
+                // Handle various exception types
+                val error = errorMapper.map(throwable)
+
+                log(LogLevel.ERROR, "OpenRouter", error.stackTraceToString())
+
+                throw error
+            }
+    }
+
+    /**
+     * Thrown an exception if response code is not in 200..299 range
+     * */
+    private suspend fun checkOkResponse(response: HttpResponse) {
+        if (response.status.value !in 200..299) {
+            val errorResponseBody = response.bodyAsText()
+            log(LogLevel.DEBUG, TAG, "Error response body: $errorResponseBody")
+
+            throw OpenRouterErrorHandler.parseErrorResponse(errorResponseBody)
+                ?: Exception(errorResponseBody)
         }
     }
 
@@ -169,7 +216,12 @@ class OpenRouterProvider(
             val bytes = base64.decodeBase64()
             bytes
         } catch (t: Throwable) {
-            log(LogLevel.ERROR, "OpenRouterProvider", "Failed to decode base64 image: ${t.message}", t)
+            log(
+                LogLevel.ERROR,
+                "OpenRouterProvider",
+                "Failed to decode base64 image: ${t.message}",
+                t
+            )
             null
         }
     }
@@ -199,6 +251,7 @@ class OpenRouterProvider(
                             }
                         }
                     }
+
                     else -> {
                         addJsonObject {
                             put("type", "file")
@@ -247,14 +300,16 @@ fun String.decodeBase64(): ByteArray {
         repeat(4) {
             if (i + it < input.length) {
                 val c = input[i + it]
-                sextets.add(when {
-                    c in 'A'..'Z' -> c - 'A'
-                    c in 'a'..'z' -> c - 'a' + 26
-                    c in '0'..'9' -> c - '0' + 52
-                    c == '+' -> 62
-                    c == '/' -> 63
-                    else -> 0
-                })
+                sextets.add(
+                    when {
+                        c in 'A'..'Z' -> c - 'A'
+                        c in 'a'..'z' -> c - 'a' + 26
+                        c in '0'..'9' -> c - '0' + 52
+                        c == '+' -> 62
+                        c == '/' -> 63
+                        else -> 0
+                    }
+                )
             } else {
                 sextets.add(0)
             }
