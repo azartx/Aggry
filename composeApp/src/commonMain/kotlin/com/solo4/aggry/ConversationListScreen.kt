@@ -15,10 +15,10 @@ import androidx.compose.ui.unit.sp
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.Conversation
 import com.solo4.aggry.data.ConversationListViewModel
-import com.solo4.aggry.img.arrowBack
 import aggry.composeapp.generated.resources.Res
 import aggry.composeapp.generated.resources.no_conversations
 import aggry.composeapp.generated.resources.close_x
+import com.solo4.aggry.img.ArrowBack
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +40,10 @@ fun ConversationListScreen(
                 title = { Text(apiKey.name) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = arrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )

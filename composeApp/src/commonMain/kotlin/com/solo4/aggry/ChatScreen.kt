@@ -33,7 +33,6 @@ import com.solo4.aggry.data.MessageStatus
 import com.solo4.aggry.save.savePhotoToGallery
 import com.solo4.aggry.copy.copyToClipboard
 import com.solo4.aggry.filepicker.rememberFilePicker
-import com.solo4.aggry.img.arrowBack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import aggry.composeapp.generated.resources.Res
@@ -53,7 +52,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PlatformImeOptions
+import com.solo4.aggry.img.ArrowBack
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,11 +105,9 @@ fun ChatScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
-                        modifier = Modifier
-                            .size(40.dp)
                     ) {
                         Icon(
-                            imageVector = arrowBack,
+                            imageVector = ArrowBack,
                             contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
