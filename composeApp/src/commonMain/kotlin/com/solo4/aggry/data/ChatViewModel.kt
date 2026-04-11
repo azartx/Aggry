@@ -196,17 +196,27 @@ class ChatViewModel(
                             messages = updatedMessages
                         )
                     }
+                    currentConversationId?.let { convId ->
+                        repository.updateMessageStatus(userMessage.id, MessageStatus.FAILED)
+                    }
                 }
         }
     }
 
     fun retryFailedMessage(message: ChatMessage) {
         if (!message.isFromUser || message.status != MessageStatus.FAILED) return
-        // TODO: avoid duplicating user message in DB when we implement real retry semantics.
-        _uiState.update {
-            it.copy(messageInput = message.content, attachedFiles = message.attachedFiles)
+        
+        viewModelScope.launch {
+            repository.deleteMessage(message.id)
+            _uiState.update { state ->
+                state.copy(
+                    messageInput = message.content, 
+                    attachedFiles = message.attachedFiles,
+                    messages = state.messages.filter { it.id != message.id }
+                )
+            }
+            sendMessage()
         }
-        sendMessage()
     }
 
     fun clearError() {

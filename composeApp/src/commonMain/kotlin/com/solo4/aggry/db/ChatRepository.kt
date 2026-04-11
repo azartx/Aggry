@@ -37,6 +37,7 @@ class ChatRepository {
                 conversationId = row.conversation_id,
                 content = row.content,
                 isFromUser = row.is_from_user == 1L,
+                status = row.status,
                 createdAt = row.created_at,
                 files = files,
                 images = images
@@ -101,6 +102,7 @@ class ChatRepository {
             conversationId = conversationId,
             content = message.content,
             isFromUser = if (message.isFromUser) 1L else 0L,
+            status = message.status.name,
             createdAt = now
         )
         message.attachedFiles.forEach { file ->
@@ -161,5 +163,9 @@ class ChatRepository {
             fileCache.deleteFile(imgRow.cached_path)
         }
         queries.deleteMessageById(messageId)
+    }
+
+    suspend fun updateMessageStatus(messageId: String, status: com.solo4.aggry.data.MessageStatus) = withContext(Dispatchers.Default) {
+        queries.updateMessageStatus(status = status.name, id = messageId)
     }
 }

@@ -41,15 +41,21 @@ object MessageMapper {
         conversationId: String,
         content: String,
         isFromUser: Boolean,
+        status: String,
         createdAt: Long,
         files: List<AttachedFile>,
         images: List<GeneratedImage> = emptyList()
     ): ChatMessage {
+        val messageStatus = try {
+            MessageStatus.valueOf(status)
+        } catch (e: Exception) {
+            MessageStatus.SENT
+        }
         return ChatMessage(
             id = id,
             content = content,
             isFromUser = isFromUser,
-            status = MessageStatus.SENT,
+            status = messageStatus,
             attachedFiles = files,
             generatedImages = images
         )
