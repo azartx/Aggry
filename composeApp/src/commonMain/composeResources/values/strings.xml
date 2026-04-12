@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="select_model">Выберите модель</string>
+    <string name="change_model">Изменить модель</string>
     <string name="type_a_message">Введите сообщение...</string>
     <string name="send">Отправить</string>
     <string name="search_models">Поиск моделей...</string>

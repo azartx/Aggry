@@ -36,6 +36,7 @@ import com.solo4.aggry.filepicker.rememberFilePicker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.change_model
 import aggry.composeapp.generated.resources.select_model
 import aggry.composeapp.generated.resources.type_a_message
 import aggry.composeapp.generated.resources.send
@@ -125,7 +126,11 @@ fun ChatScreen(
                             )
                         } else {
                             Text(
-                                text = uiState.selectedModel?.name ?: "Model",
+                                text = if (uiState.selectedModel?.name.isNullOrBlank()) {
+                                    stringResource(Res.string.select_model)
+                                } else {
+                                    stringResource(Res.string.change_model)
+                                },
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.labelLarge
                             )
