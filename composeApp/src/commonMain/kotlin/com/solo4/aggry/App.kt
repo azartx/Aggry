@@ -2,15 +2,15 @@ package com.solo4.aggry
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.Surface
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.ChatViewModel
 import com.solo4.aggry.provider.openrouter.OpenRouterProvider
+import com.solo4.aggry.theme.AggryTheme
 
 private sealed interface Screen {
     data object KeyList : Screen
@@ -21,7 +21,7 @@ private sealed interface Screen {
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    AggryTheme {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
