@@ -54,6 +54,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.VectorIcons
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,7 +109,7 @@ fun ChatScreen(
                         onClick = onBack,
                     ) {
                         Icon(
-                            imageVector = ArrowBack,
+                            imageVector = VectorIcons.ArrowBack,
                             contentDescription = "Back",
                             tint = MaterialTheme.colorScheme.onSurface
                         )

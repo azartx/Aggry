@@ -19,6 +19,7 @@ import aggry.composeapp.generated.resources.Res
 import aggry.composeapp.generated.resources.no_conversations
 import aggry.composeapp.generated.resources.close_x
 import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.VectorIcons
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +42,7 @@ fun ConversationListScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = ArrowBack,
+                            imageVector = VectorIcons.ArrowBack,
                             contentDescription = "Back"
                         )
                     }

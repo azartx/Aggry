@@ -6,12 +6,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val VectorIcons.ArrowBack: ImageVector
+val VectorIcons.Add: ImageVector
     get() {
-        if (_Arrow_back != null) return _Arrow_back!!
+        if (_Add != null) return _Add!!
 
-        _Arrow_back = ImageVector.Builder(
-            name = "arrow_back",
+        _Add = ImageVector.Builder(
+            name = "add",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,
@@ -30,21 +30,24 @@ val VectorIcons.ArrowBack: ImageVector
             path(
                 fill = SolidColor(Color(0xFF000000))
             ) {
-                moveTo(20f, 11f)
-                horizontalLineTo(7.83f)
-                lineToRelative(5.59f, -5.59f)
-                lineTo(12f, 4f)
-                lineToRelative(-8f, 8f)
-                lineToRelative(8f, 8f)
-                lineToRelative(1.41f, -1.41f)
-                lineTo(7.83f, 13f)
-                horizontalLineTo(20f)
+                moveTo(19f, 13f)
+                horizontalLineToRelative(-6f)
+                verticalLineToRelative(6f)
+                horizontalLineToRelative(-2f)
+                verticalLineToRelative(-6f)
+                horizontalLineTo(5f)
                 verticalLineToRelative(-2f)
+                horizontalLineToRelative(6f)
+                verticalLineTo(5f)
+                horizontalLineToRelative(2f)
+                verticalLineToRelative(6f)
+                horizontalLineToRelative(6f)
+                verticalLineToRelative(2f)
                 close()
             }
         }.build()
 
-        return _Arrow_back!!
+        return _Add!!
     }
 
-private var _Arrow_back: ImageVector? = null
+private var _Add: ImageVector? = null

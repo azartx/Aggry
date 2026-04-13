@@ -1,7 +1,5 @@
 package com.solo4.aggry.components
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +13,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.solo4.aggry.data.ApiKey
-import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.Add
+import com.solo4.aggry.img.Delete
+import com.solo4.aggry.img.Edit
+import com.solo4.aggry.img.VectorIcons
 
 @Composable
 fun ApiKeyCard(
@@ -70,7 +71,7 @@ fun ApiKeyCard(
                         modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
-                            imageVector = ArrowBack,//TODO("Add Key icon from compose-resources"),
+                            imageVector = VectorIcons.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
@@ -106,7 +107,7 @@ fun ApiKeyCard(
                         modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
-                            imageVector = ArrowBack,//TODO("Add Edit icon from compose-resources"),
+                            imageVector = VectorIcons.Edit,
                             contentDescription = "Edit",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -117,7 +118,7 @@ fun ApiKeyCard(
                         modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
-                            imageVector = ArrowBack,//TODO("Add Delete icon from compose-resources"),
+                            imageVector = VectorIcons.Delete,
                             contentDescription = "Delete",
                             tint = MaterialTheme.colorScheme.error
                         )
@@ -133,7 +134,7 @@ fun ApiKeyCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 StatusChip(
-                    icon = ArrowBack,//TODO("Add CheckCircle icon from compose-resources"),
+                    icon = VectorIcons.Add,
                     text = "Valid",
                     color = Color(0xFF81C995),
                     backgroundColor = Color(0xFF004D27)

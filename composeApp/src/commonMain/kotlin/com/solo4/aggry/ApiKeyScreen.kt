@@ -15,12 +15,8 @@ import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.ApiKeyViewModel
 import aggry.composeapp.generated.resources.Res
 import aggry.composeapp.generated.resources.api_keys
-import aggry.composeapp.generated.resources.key_name
-import aggry.composeapp.generated.resources.api_key
-import aggry.composeapp.generated.resources.save_key
-import aggry.composeapp.generated.resources.no_api_keys
-import aggry.composeapp.generated.resources.close_x
-import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.Key
+import com.solo4.aggry.img.VectorIcons
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -48,7 +44,7 @@ fun ApiKeyScreen(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    imageVector = ArrowBack,//TODO("Add Key icon from compose-resources"),
+                    imageVector = VectorIcons.Key,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
@@ -111,7 +107,7 @@ fun ApiKeyScreen(
         } else {
             // Empty state с иллюстрацией
             EmptyState(
-                icon = ArrowBack,//TODO("Add Key icon from compose-resources"),
+                icon = VectorIcons.Key,
                 title = "No API Keys Yet",
                 description = "Add your first API key to start using Aggry. Your keys are stored securely and only used for your requests.",
                 primaryButtonText = "Add Your First Key",

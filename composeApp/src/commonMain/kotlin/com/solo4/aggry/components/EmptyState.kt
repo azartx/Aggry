@@ -8,11 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.Add
+import com.solo4.aggry.img.VectorIcons
 
 @Composable
 fun EmptyState(
-    icon: ImageVector = ArrowBack,//TODO("Add Key icon from compose-resources"),
+    icon: ImageVector = VectorIcons.Add,
     title: String,
     description: String,
     primaryButtonText: String? = null,

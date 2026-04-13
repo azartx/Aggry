@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.ChatViewModel
@@ -25,7 +26,7 @@ fun App() {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .safeContentPadding()
+                .systemBarsPadding()
         ) {
             val navStack = remember { mutableStateListOf<Screen>(Screen.KeyList) }
             val currentScreen = navStack.last()

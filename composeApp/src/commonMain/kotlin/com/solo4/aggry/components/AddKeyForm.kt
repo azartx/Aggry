@@ -1,7 +1,6 @@
 package com.solo4.aggry.components
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,11 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.solo4.aggry.img.ArrowBack
+import com.solo4.aggry.img.Add
+import com.solo4.aggry.img.VectorIcons
+import com.solo4.aggry.img.Visibility
+import com.solo4.aggry.img.VisibilityOff
 
 @Composable
 fun AddKeyForm(
@@ -52,7 +53,7 @@ fun AddKeyForm(
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
-                            imageVector = ArrowBack,// TODO("Add Add icon from compose-resources"),
+                            imageVector = VectorIcons.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier
@@ -76,7 +77,7 @@ fun AddKeyForm(
                     }
                     
                     Icon(
-                        imageVector = ArrowBack,//TODO("Add Key icon from compose-resources"),
+                        imageVector = VectorIcons.Add,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
@@ -104,7 +105,7 @@ fun AddKeyForm(
                             singleLine = true,
                             leadingIcon = {
                                 Icon(
-                                    imageVector = ArrowBack,//TODO("Add Key icon from compose-resources"),
+                                    imageVector = VectorIcons.Add,
                                     contentDescription = null
                                 )
                             },
@@ -128,8 +129,8 @@ fun AddKeyForm(
                             trailingIcon = {
                                 IconButton(onClick = { isKeyVisible = !isKeyVisible }) {
                                     Icon(
-                                        imageVector = if (isKeyVisible) ArrowBack//TODO("Add VisibilityOff icon from compose-resources")
-                                        else ArrowBack,//TODO("Add Visibility icon from compose-resources"),
+                                        imageVector = if (isKeyVisible) VectorIcons.VisibilityOff
+                                        else VectorIcons.Visibility,
                                         contentDescription = if (isKeyVisible) "Hide key" else "Show key"
                                     )
                                 }
