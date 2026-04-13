@@ -7,5 +7,7 @@ data class Conversation(
     val modelName: String,
     val title: String,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val messageCount: Int = 0,
+    val lastMessage: String? = null
 )
