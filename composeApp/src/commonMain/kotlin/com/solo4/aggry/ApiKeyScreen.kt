@@ -14,7 +14,11 @@ import com.solo4.aggry.components.*
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.ApiKeyViewModel
 import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.add_keys_info
+import aggry.composeapp.generated.resources.add_your_first_key_btn_title
 import aggry.composeapp.generated.resources.api_keys
+import aggry.composeapp.generated.resources.no_api_keys_yet
+import aggry.composeapp.generated.resources.your_api_keys
 import com.solo4.aggry.img.Key
 import com.solo4.aggry.img.VectorIcons
 import org.jetbrains.compose.resources.stringResource
@@ -32,7 +36,6 @@ fun ApiKeyScreen(
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        // Заголовок с градиентом
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -48,8 +51,8 @@ fun ApiKeyScreen(
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .size(28.dp)
                         .align(Alignment.CenterVertically)
+                        .padding(4.dp)
                 )
             }
             
@@ -62,7 +65,6 @@ fun ApiKeyScreen(
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Форма добавления ключа
         AddKeyForm(
             name = uiState.nameInput,
             onNameChange = { viewModel.updateNameInput(it) },
@@ -79,13 +81,12 @@ fun ApiKeyScreen(
                 .padding(bottom = 24.dp)
         )
         
-        // Секция с существующими ключами
         if (uiState.apiKeys.isNotEmpty()) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 SectionTitle(
-                    text = "Your API Keys",
+                    text = stringResource(Res.string.your_api_keys),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 
@@ -105,12 +106,11 @@ fun ApiKeyScreen(
                 }
             }
         } else {
-            // Empty state с иллюстрацией
             EmptyState(
                 icon = VectorIcons.Key,
-                title = "No API Keys Yet",
-                description = "Add your first API key to start using Aggry. Your keys are stored securely and only used for your requests.",
-                primaryButtonText = "Add Your First Key",
+                title = stringResource(Res.string.no_api_keys_yet),
+                description = stringResource(Res.string.add_keys_info),
+                primaryButtonText = stringResource(Res.string.add_your_first_key_btn_title),
                 onPrimaryClick = { isAddFormExpanded = true },
                 modifier = Modifier
                     .fillMaxSize()

@@ -23,4 +23,21 @@
     <string name="error_network">Не удается подключиться к серверу. Проверьте интернет-подключение.</string>
     <string name="error_unknown">Неизвестная ошибка</string>
     <string name="delete">Удалить</string>
+    <string name="key_name_placeholder">OpenRouter ключ, к примеру</string>
+    <string name="key_name_title">Название ключа</string>
+    <string name="key_add_new">Добавить новый ключ API</string>
+    <string name="add_api_key">Добавить ключ API</string>
+    <string name="click_to_add_api_key">Нажмите чтобы добавить новый ключ API</string>
+    <string name="enter_api_key_title">Введите сюда свой ключ API</string>
+    <string name="hide_key">Скрыть ключ</string>
+    <string name="show_key">Показать ключ</string>
+    <string name="cancel">Отмена</string>
+    <string name="save_key_info">Ваш ключ API сохранен локально на устройстве</string>
+    <string name="your_api_keys">Ваши ключи API</string>
+    <string name="no_api_keys_yet">Ключи API пока не добавлены</string>
+    <string name="add_your_first_key_btn_title">Добавить свой первый ключ</string>
+    <string name="add_keys_info">Добавьте свой первый ключ API, чтобы начать использовать Aggry. Добавленные вами ключи хранятся безопасно и используются только в запросах.</string>
+    <string name="delete_key_description">Вы уверены, что хотите удалить "%s"? Это действие нельзя будет отменить.</string>
+    <string name="delete_key_title">Удалить ключ API</string>
+    <string name="edit">Редактировать</string>
 </resources>

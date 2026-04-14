@@ -1,5 +1,18 @@
 package com.solo4.aggry.components
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.add_api_key
+import aggry.composeapp.generated.resources.api_key
+import aggry.composeapp.generated.resources.cancel
+import aggry.composeapp.generated.resources.click_to_add_api_key
+import aggry.composeapp.generated.resources.enter_api_key_title
+import aggry.composeapp.generated.resources.hide_key
+import aggry.composeapp.generated.resources.key_add_new
+import aggry.composeapp.generated.resources.key_name_placeholder
+import aggry.composeapp.generated.resources.key_name_title
+import aggry.composeapp.generated.resources.save_key
+import aggry.composeapp.generated.resources.save_key_info
+import aggry.composeapp.generated.resources.show_key
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +28,7 @@ import com.solo4.aggry.img.Add
 import com.solo4.aggry.img.VectorIcons
 import com.solo4.aggry.img.Visibility
 import com.solo4.aggry.img.VisibilityOff
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AddKeyForm(
@@ -66,11 +80,11 @@ fun AddKeyForm(
                     
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Add API Key",
+                            text = stringResource(Res.string.add_api_key),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "Click to add a new API key",
+                            text = stringResource(Res.string.click_to_add_api_key),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -91,7 +105,7 @@ fun AddKeyForm(
                 ) {
                     Column {
                         Text(
-                            text = "Add New API Key",
+                            text = stringResource(Res.string.key_add_new),
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -99,8 +113,8 @@ fun AddKeyForm(
                         OutlinedTextField(
                             value = name,
                             onValueChange = onNameChange,
-                            label = { Text("Key Name") },
-                            placeholder = { Text("e.g., OpenAI GPT-4") },
+                            label = { Text(stringResource(Res.string.key_name_title)) },
+                            placeholder = { Text(stringResource(Res.string.key_name_placeholder)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             leadingIcon = {
@@ -120,8 +134,8 @@ fun AddKeyForm(
                         OutlinedTextField(
                             value = key,
                             onValueChange = onKeyChange,
-                            label = { Text("API Key") },
-                            placeholder = { Text("Enter your API key here") },
+                            label = { Text(stringResource(Res.string.api_key)) },
+                            placeholder = { Text(stringResource(Res.string.enter_api_key_title)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             visualTransformation = if (isKeyVisible) VisualTransformation.None
@@ -131,7 +145,11 @@ fun AddKeyForm(
                                     Icon(
                                         imageVector = if (isKeyVisible) VectorIcons.VisibilityOff
                                         else VectorIcons.Visibility,
-                                        contentDescription = if (isKeyVisible) "Hide key" else "Show key"
+                                        contentDescription = if (isKeyVisible) {
+                                            stringResource(Res.string.hide_key)
+                                        } else {
+                                            stringResource(Res.string.show_key)
+                                        }
                                     )
                                 }
                             },
@@ -155,7 +173,7 @@ fun AddKeyForm(
                                 },
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("Cancel")
+                                Text(stringResource(Res.string.cancel))
                             }
                             
                             Spacer(modifier = Modifier.width(12.dp))
@@ -168,14 +186,14 @@ fun AddKeyForm(
                                 modifier = Modifier.weight(1f),
                                 enabled = name.isNotBlank() && key.isNotBlank()
                             ) {
-                                Text("Save Key")
+                                Text(stringResource(Res.string.save_key))
                             }
                         }
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         Text(
-                            text = "Your API key is stored locally and never sent to our servers",
+                            text = stringResource(Res.string.save_key_info),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 8.dp)

@@ -1,5 +1,11 @@
 package com.solo4.aggry.components
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.cancel
+import aggry.composeapp.generated.resources.delete
+import aggry.composeapp.generated.resources.delete_key_description
+import aggry.composeapp.generated.resources.delete_key_title
+import aggry.composeapp.generated.resources.edit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +23,7 @@ import com.solo4.aggry.img.Add
 import com.solo4.aggry.img.Delete
 import com.solo4.aggry.img.Edit
 import com.solo4.aggry.img.VectorIcons
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ApiKeyCard(
@@ -108,7 +115,7 @@ fun ApiKeyCard(
                     ) {
                         Icon(
                             imageVector = VectorIcons.Edit,
-                            contentDescription = "Edit",
+                            contentDescription = stringResource(Res.string.edit),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -119,33 +126,33 @@ fun ApiKeyCard(
                     ) {
                         Icon(
                             imageVector = VectorIcons.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(Res.string.delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                StatusChip(
-                    icon = VectorIcons.Add,
-                    text = "Valid",
-                    color = Color(0xFF81C995),
-                    backgroundColor = Color(0xFF004D27)
-                )
-                
-                Text(
-                    text = "Last used: 2h ago",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+//            Spacer(modifier = Modifier.height(12.dp))
+//
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                StatusChip(
+//                    icon = VectorIcons.Add,
+//                    text = "Valid", //TODO: add keys validation
+//                    color = Color(0xFF81C995),
+//                    backgroundColor = Color(0xFF004D27)
+//                )
+//
+//                Text(
+//                    text = "Last used: 2h ago", //TODO: add last usage time
+//                    style = MaterialTheme.typography.labelSmall,
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                )
+//            }
         }
     }
 }
@@ -193,9 +200,9 @@ private fun DeleteConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete API Key") },
+        title = { Text(stringResource(Res.string.delete_key_title)) },
         text = { 
-            Text("Are you sure you want to delete \"$keyName\"? This action cannot be undone.")
+            Text(stringResource(Res.string.delete_key_description, keyName))
         },
         confirmButton = {
             TextButton(
@@ -204,12 +211,12 @@ private fun DeleteConfirmationDialog(
                     onDismiss()
                 }
             ) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(Res.string.delete), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
