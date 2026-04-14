@@ -6,6 +6,7 @@ import com.solo4.aggry.db.ChatRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -23,9 +24,20 @@ class ConversationListViewModel(
 
     private fun loadConversations() {
         viewModelScope.launch {
-            repository.getConversationsByApiKey(apiKeyId).collect { conversations ->
-                _uiState.update { it.copy(conversations = conversations) }
-            }
+            repository.getConversationsByApiKey(apiKeyId)
+                .catch {
+                    _uiState.update {
+                        it.copy(isScreenLoading = false)
+                    }
+                }
+                .collect { conversations ->
+                    _uiState.update {
+                        it.copy(
+                            conversations = conversations,
+                            isScreenLoading = false,
+                        )
+                    }
+                }
         }
     }
 
@@ -37,5 +49,6 @@ class ConversationListViewModel(
 }
 
 data class ConversationListUiState(
-    val conversations: List<Conversation> = emptyList()
+    val conversations: List<Conversation> = emptyList(),
+    val isScreenLoading: Boolean = true,
 )

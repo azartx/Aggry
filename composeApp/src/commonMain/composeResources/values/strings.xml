@@ -37,7 +37,18 @@
     <string name="no_api_keys_yet">Ключи API пока не добавлены</string>
     <string name="add_your_first_key_btn_title">Добавить свой первый ключ</string>
     <string name="add_keys_info">Добавьте свой первый ключ API, чтобы начать использовать Aggry. Добавленные вами ключи хранятся безопасно и используются только в запросах.</string>
-    <string name="delete_key_description">Вы уверены, что хотите удалить "%s"? Это действие нельзя будет отменить.</string>
+    <string name="delete_key_description">Вы уверены, что хотите удалить "%1$s"? Это действие нельзя будет отменить.</string>
     <string name="delete_key_title">Удалить ключ API</string>
     <string name="edit">Редактировать</string>
+    <string name="back">Назад</string>
+    <string name="new_chat">Новый чат</string>
+    <string name="recent_conversations">Недавние беседы</string>
+    <string name="more_options">Дополнительные возможности</string>
+    <string name="rename">Переименовать</string>
+    <string name="n_messages">%1$s сбщ</string>
+    <string name="just_now">Только что</string>
+    <string name="m_ago">%1$dм назад</string>
+    <string name="h_ago">%1$dч назад</string>
+    <string name="d_ago">%1$dд назад</string>
+    <string name="w_ago">%1$dн назад</string>
 </resources>

@@ -38,7 +38,7 @@ fun App() {
             fun pop() {
                 if (navStack.size > 1) navStack.removeLast()
             }
-
+            // TODO: replace into kmp back handler
             BackHandler(enabled = navStack.size > 1) {
                 pop()
             }

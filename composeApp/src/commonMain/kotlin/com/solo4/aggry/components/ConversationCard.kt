@@ -1,5 +1,13 @@
 package com.solo4.aggry.components
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.delete
+import aggry.composeapp.generated.resources.edit
+import aggry.composeapp.generated.resources.just_now
+import aggry.composeapp.generated.resources.m_ago
+import aggry.composeapp.generated.resources.more_options
+import aggry.composeapp.generated.resources.n_messages
+import aggry.composeapp.generated.resources.rename
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +28,7 @@ import com.solo4.aggry.img.Message
 import com.solo4.aggry.img.MoreVert
 import com.solo4.aggry.img.Schedule
 import com.solo4.aggry.img.VectorIcons
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
 @Composable
@@ -39,8 +48,11 @@ fun ConversationCard(
             .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-        else MaterialTheme.colorScheme.surface,
+        color = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
         tonalElevation = if (isSelected) 4.dp else 2.dp,
         border = CardDefaults.outlinedCardBorder(enabled = isSelected)
     ) {
@@ -49,7 +61,6 @@ fun ConversationCard(
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            // Заголовок и кнопка меню
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -69,14 +80,14 @@ fun ConversationCard(
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .size(22.dp)
                                 .align(Alignment.CenterVertically)
+                                .padding(4.dp)
                         )
                     }
                     
                     Spacer(modifier = Modifier.width(12.dp))
                     
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                         Text(
                             text = conversation.title,
                             style = MaterialTheme.typography.titleMedium,
@@ -84,15 +95,15 @@ fun ConversationCard(
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        
-                        Text(
+                        // TODO: implement last message text
+                        /*Text(
                             text = formatLastMessage(conversation),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(top = 4.dp)
-                        )
+                        )*/
                     }
                 }
                 
@@ -103,7 +114,7 @@ fun ConversationCard(
                     ) {
                         Icon(
                             imageVector = VectorIcons.MoreVert,
-                            contentDescription = "More options",
+                            contentDescription = stringResource(Res.string.more_options),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -113,7 +124,7 @@ fun ConversationCard(
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Rename") },
+                            text = { Text(stringResource(Res.string.rename)) },
                             onClick = {
                                 onEdit(conversation)
                                 showMenu = false
@@ -121,12 +132,16 @@ fun ConversationCard(
                             leadingIcon = {
                                 Icon(
                                     imageVector = VectorIcons.Edit,
-                                    contentDescription = "Edit"
+                                    contentDescription = stringResource(Res.string.edit)
                                 )
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                            text = {
+                                Text(
+                                    text = stringResource(Res.string.delete),
+                                    color = MaterialTheme.colorScheme.error)
+                                   },
                             onClick = {
                                 onDelete(conversation)
                                 showMenu = false
@@ -134,7 +149,7 @@ fun ConversationCard(
                             leadingIcon = {
                                 Icon(
                                     imageVector = VectorIcons.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(Res.string.delete),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -145,7 +160,6 @@ fun ConversationCard(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Метаданные и модель
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -163,10 +177,12 @@ fun ConversationCard(
                     
                     MetaInfoItem(
                         icon = VectorIcons.Message,
-                        text = "${conversation.messageCount} messages",
+                        text = stringResource(Res.string.n_messages, conversation.messageCount.toString()),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                Spacer(modifier = Modifier.width(12.dp))
                 
                 ModelChip(modelName = conversation.modelName)
             }
@@ -209,7 +225,7 @@ private fun ModelChip(modelName: String) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.Center
         ) {
             Icon(
                 imageVector = VectorIcons.Memory,
@@ -217,29 +233,30 @@ private fun ModelChip(modelName: String) {
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(12.dp)
             )
+
+            Spacer(modifier = Modifier.width(4.dp))
             
             Text(
                 text = modelName,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
-private fun formatLastMessage(conversation: Conversation): String {
-    return conversation.lastMessage ?: "No messages yet"
-}
-
+@Composable
 private fun formatTimeAgo(timestamp: Long): String {
     val now = Clock.System.now().toEpochMilliseconds()
     val diff = now - timestamp
     
     return when {
-        diff < 60_000 -> "Just now"
-        diff < 3_600_000 -> "${diff / 60_000}m ago"
-        diff < 86_400_000 -> "${diff / 3_600_000}h ago"
-        diff < 2_592_000_000 -> "${diff / 86_400_000}d ago"
-        else -> "${diff / 2_592_000_000}w ago"
+        diff < 60_000 -> stringResource(Res.string.just_now)
+        diff < 3_600_000 -> stringResource(Res.string.m_ago, diff / 60_000)
+        diff < 86_400_000 -> stringResource(Res.string.m_ago, diff / 3_600_000)
+        diff < 2_592_000_000 -> stringResource(Res.string.m_ago, diff / 86_400_000)
+        else -> stringResource(Res.string.m_ago, diff / 2_592_000_000)
     }
 }

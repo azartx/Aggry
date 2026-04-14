@@ -1,5 +1,9 @@
 package com.solo4.aggry
 
+import aggry.composeapp.generated.resources.Res
+import aggry.composeapp.generated.resources.back
+import aggry.composeapp.generated.resources.new_chat
+import aggry.composeapp.generated.resources.recent_conversations
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,16 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.solo4.aggry.components.*
 import com.solo4.aggry.data.ApiKey
 import com.solo4.aggry.data.Conversation
 import com.solo4.aggry.data.ConversationListViewModel
-import aggry.composeapp.generated.resources.Res
-import aggry.composeapp.generated.resources.no_conversations
-import aggry.composeapp.generated.resources.close_x
 import com.solo4.aggry.img.Add
 import com.solo4.aggry.img.ArrowBack
 import com.solo4.aggry.img.VectorIcons
@@ -56,63 +55,73 @@ fun ConversationListScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = VectorIcons.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(Res.string.back)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onNewChat,
-                icon = {
-                    Icon(
-                        imageVector = VectorIcons.Add,
-                        contentDescription = "New Chat"
-                    )
-                },
-                text = { Text("New Chat") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            if (uiState.conversations.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = onNewChat,
+                    icon = {
+                        Icon(
+                            imageVector = VectorIcons.Add,
+                            contentDescription = stringResource(Res.string.new_chat)
+                        )
+                    },
+                    text = { Text(stringResource(Res.string.new_chat)) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     ) { padding ->
-        if (uiState.conversations.isEmpty()) {
-            EmptyConversationsState(
-                apiKeyName = apiKey.name,
-                onNewChat = onNewChat,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 24.dp, vertical = 48.dp)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                item {
-                    GradientText(
-                        text = "Recent Conversations",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+        when {
+            uiState.isScreenLoading -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                
-                items(uiState.conversations, key = { it.id }) { conversation ->
-                    AnimatedConversationItem(
-                        conversation = conversation,
-                        onClick = { onConversationClick(conversation) },
-                        onEdit = { /* TODO: Implement edit conversation */ },
-                        onDelete = { viewModel.deleteConversation(conversation.id) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            }
+            uiState.conversations.isEmpty() -> {
+                EmptyConversationsState(
+                    apiKeyName = apiKey.name,
+                    onNewChat = onNewChat,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 24.dp, vertical = 48.dp)
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                ) {
+                    item {
+                        GradientText(
+                            text = stringResource(Res.string.recent_conversations),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    items(uiState.conversations, key = { it.id }) { conversation ->
+                        AnimatedConversationItem(
+                            conversation = conversation,
+                            onClick = { onConversationClick(conversation) },
+                            onEdit = { /* TODO: Implement edit conversation */ },
+                            onDelete = { viewModel.deleteConversation(conversation.id) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         }

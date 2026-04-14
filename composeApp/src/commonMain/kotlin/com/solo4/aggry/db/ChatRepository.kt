@@ -20,44 +20,50 @@ class ChatRepository {
     fun getConversationsByApiKey(apiKeyId: String): Flow<List<Conversation>> {
         return queries.selectConversationsByApiKey(apiKeyId) { id, keyId, modelId, modelName, title, createdAt, updatedAt ->
             ConversationMapper.fromDb(id, keyId, modelId, modelName, title, createdAt, updatedAt)
-        }.asFlow().mapToList(Dispatchers.Default)
+        }
+            .asFlow()
+            .mapToList(Dispatchers.Default)
     }
 
-    suspend fun getMessages(conversationId: String): List<ChatMessage> = withContext(Dispatchers.Default) {
-        val messageRows = queries.selectMessagesByConversation(conversationId).executeAsList()
-        messageRows.map { row ->
-            val files = queries.selectFilesByMessage(row.id).executeAsList().mapNotNull { fileRow ->
-                fileCache.loadFile(fileRow.cached_path)
+    suspend fun getMessages(conversationId: String): List<ChatMessage> =
+        withContext(Dispatchers.Default) {
+            val messageRows = queries.selectMessagesByConversation(conversationId).executeAsList()
+            messageRows.map { row ->
+                val files =
+                    queries.selectFilesByMessage(row.id).executeAsList().mapNotNull { fileRow ->
+                        fileCache.loadFile(fileRow.cached_path)
+                    }
+                val images =
+                    queries.selectGeneratedImagesByMessage(row.id).executeAsList().map { imgRow ->
+                        GeneratedImage(cachedPath = imgRow.cached_path, mimeType = imgRow.mime_type)
+                    }
+                MessageMapper.fromDb(
+                    id = row.id,
+                    conversationId = row.conversation_id,
+                    content = row.content,
+                    isFromUser = row.is_from_user == 1L,
+                    status = row.status,
+                    createdAt = row.created_at,
+                    files = files,
+                    images = images
+                )
             }
-            val images = queries.selectGeneratedImagesByMessage(row.id).executeAsList().map { imgRow ->
-                GeneratedImage(cachedPath = imgRow.cached_path, mimeType = imgRow.mime_type)
-            }
-            MessageMapper.fromDb(
-                id = row.id,
-                conversationId = row.conversation_id,
-                content = row.content,
-                isFromUser = row.is_from_user == 1L,
-                status = row.status,
-                createdAt = row.created_at,
-                files = files,
-                images = images
-            )
         }
-    }
 
-    suspend fun getConversation(conversationId: String): Conversation? = withContext(Dispatchers.Default) {
-        queries.selectConversationById(conversationId).executeAsOneOrNull()?.let { row ->
-            ConversationMapper.fromDb(
-                id = row.id,
-                apiKeyId = row.api_key_id,
-                modelId = row.model_id,
-                modelName = row.model_name,
-                title = row.title,
-                createdAt = row.created_at,
-                updatedAt = row.updated_at
-            )
+    suspend fun getConversation(conversationId: String): Conversation? =
+        withContext(Dispatchers.Default) {
+            queries.selectConversationById(conversationId).executeAsOneOrNull()?.let { row ->
+                ConversationMapper.fromDb(
+                    id = row.id,
+                    apiKeyId = row.api_key_id,
+                    modelId = row.model_id,
+                    modelName = row.model_name,
+                    title = row.title,
+                    createdAt = row.created_at,
+                    updatedAt = row.updated_at
+                )
+            }
         }
-    }
 
     suspend fun updateConversationModel(
         conversationId: String,
@@ -165,7 +171,8 @@ class ChatRepository {
         queries.deleteMessageById(messageId)
     }
 
-    suspend fun updateMessageStatus(messageId: String, status: com.solo4.aggry.data.MessageStatus) = withContext(Dispatchers.Default) {
-        queries.updateMessageStatus(status = status.name, id = messageId)
-    }
+    suspend fun updateMessageStatus(messageId: String, status: com.solo4.aggry.data.MessageStatus) =
+        withContext(Dispatchers.Default) {
+            queries.updateMessageStatus(status = status.name, id = messageId)
+        }
 }
