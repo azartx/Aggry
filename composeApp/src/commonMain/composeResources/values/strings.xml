@@ -51,4 +51,34 @@
     <string name="h_ago">%1$dч назад</string>
     <string name="d_ago">%1$dд назад</string>
     <string name="w_ago">%1$dн назад</string>
+    <!-- Chat Screen Strings -->
+    <string name="you">Вы</string>
+    <string name="ai">ИИ</string>
+    <string name="sending">Отправка...</string>
+    <string name="sent">Отправлено</string>
+    <string name="failed">Не удалось</string>
+    <string name="retry">Повторить</string>
+    <string name="edit_message">Редактировать</string>
+    <string name="reply">Ответить</string>
+    <string name="pin">Закрепить</string>
+    <string name="unpin">Открепить</string>
+    <string name="export_chat">Экспортировать чат</string>
+    <string name="search_in_chat">Поиск в чате</string>
+    <string name="clear_chat">Очистить чат</string>
+    <string name="confirm_clear_chat">Вы уверены, что хотите очистить весь чат? Это действие нельзя отменить.</string>
+    <string name="attachments">Вложения</string>
+    <string name="generated_image">Сгенерированное изображение</string>
+    <string name="tap_to_view_image">Нажмите для просмотра</string>
+    <string name="message_options">Действия с сообщением</string>
+    <string name="model_capabilities">Возможности модели</string>
+    <string name="input_price_label">Ввод:</string>
+    <string name="output_price_label">Вывод:</string>
+    <string name="tokens_label">токенов</string>
+    <string name="free">Бесплатно</string>
+    <string name="no_messages_yet">Сообщений пока нет</string>
+    <string name="type_to_start_chatting">Начните печатать, чтобы начать общение</string>
+    <string name="attach_files">Прикрепить файлы</string>
+    <string name="voice_message">Голосовое сообщение</string>
+    <string name="emoji">Эмодзи</string>
+    <string name="typing_indicator">ИИ печатает...</string>
 </resources>

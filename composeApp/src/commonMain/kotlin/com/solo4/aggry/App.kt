@@ -76,7 +76,7 @@ fun App() {
                             conversationId = screen.conversationId
                         )
                     }
-                    ChatScreen(
+                    ChatScreenRedesigned(
                         viewModel = viewModel,
                         onBack = { pop() }
                     )

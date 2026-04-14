@@ -51,4 +51,34 @@
     <string name="h_ago">%1$dh ago</string>
     <string name="d_ago">%1$dd ago</string>
     <string name="w_ago">%1$dw ago</string>
+    <!-- Chat Screen Strings -->
+    <string name="you">You</string>
+    <string name="ai">AI</string>
+    <string name="sending">Sending...</string>
+    <string name="sent">Sent</string>
+    <string name="failed">Failed</string>
+    <string name="retry">Retry</string>
+    <string name="edit_message">Edit</string>
+    <string name="reply">Reply</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="export_chat">Export Chat</string>
+    <string name="search_in_chat">Search in chat</string>
+    <string name="clear_chat">Clear Chat</string>
+    <string name="confirm_clear_chat">Are you sure you want to clear the entire chat? This action cannot be undone.</string>
+    <string name="attachments">Attachments</string>
+    <string name="generated_image">Generated image</string>
+    <string name="tap_to_view_image">Tap to view</string>
+    <string name="message_options">Message actions</string>
+    <string name="model_capabilities">Model capabilities</string>
+    <string name="input_price_label">Input:</string>
+    <string name="output_price_label">Output:</string>
+    <string name="tokens_label">tokens</string>
+    <string name="free">Free</string>
+    <string name="no_messages_yet">No messages yet</string>
+    <string name="type_to_start_chatting">Start typing to begin chatting</string>
+    <string name="attach_files">Attach files</string>
+    <string name="voice_message">Voice message</string>
+    <string name="emoji">Emoji</string>
+    <string name="typing_indicator">AI is typing...</string>
 </resources>
